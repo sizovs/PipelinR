@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.stream.Collectors.toList;
 
 public class Pipelinr implements Pipeline {
 
@@ -18,18 +19,18 @@ public class Pipelinr implements Pipeline {
     public <R, C extends Command<R>> R send(C command) {
         checkNotNull(command, "Command must not be null");
 
-        PipelineStep.Next<R> commandHandling = new CommandHandling<>(command);
+        PipelineStep.Next<R> handleCommand = new Handle<>(command);
 
         return steps
-                .foldRight(commandHandling, (step, next) -> () -> step.invoke(command, next))
+                .foldRight(handleCommand, (step, next) -> () -> step.invoke(command, next))
                 .invoke();
     }
 
-    private class CommandHandling<R, C extends Command<R>> implements PipelineStep.Next<R> {
+    private class Handle<R, C extends Command<R>> implements PipelineStep.Next<R> {
 
         private final C command;
 
-        public CommandHandling(C command) {
+        public Handle(C command) {
             this.command = command;
         }
 
@@ -53,15 +54,15 @@ public class Pipelinr implements Pipeline {
             List<Command.Handler> matchingHandlers = commandHandlers
                     .stream()
                     .filter(handler -> handler.matches(command))
-                    .collect(Collectors.toList());
+                    .collect(toList());
 
-            boolean noMatchingHandlerFound = matchingHandlers.isEmpty();
-            if (noMatchingHandlerFound) {
+            boolean noMatches = matchingHandlers.isEmpty();
+            if (noMatches) {
                 throw new CommandHandlerNotFoundException(command);
             }
 
-            boolean moreThanOneMatchingHandlerFound = matchingHandlers.size() > 1;
-            if (moreThanOneMatchingHandlerFound) {
+            boolean moreThanOneMatch = matchingHandlers.size() > 1;
+            if (moreThanOneMatch) {
                 throw new CommandHasMultipleHandlersException(command, matchingHandlers);
             }
 
