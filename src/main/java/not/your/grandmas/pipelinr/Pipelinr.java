@@ -7,11 +7,11 @@ import static java.util.stream.Collectors.toList;
 
 public class Pipelinr implements Pipeline {
 
-    private final CommandRouter commandRouter;
+    private final Command.Router router;
     private final PipelineSteps steps;
 
     public Pipelinr(CommandHandlers commandHandlers, PipelineSteps steps) {
-        this.commandRouter = new ToFirstMatchAmong(commandHandlers);
+        this.router = new ToFirstMatchAmong(commandHandlers);
         this.steps = checkNotNull(steps, "Steps must not be null");
     }
 
@@ -35,12 +35,12 @@ public class Pipelinr implements Pipeline {
 
         @Override
         public R invoke() {
-            Command.Handler<C, R> handler = commandRouter.route(command);
+            Command.Handler<C, R> handler = router.route(command);
             return handler.handle(command);
         }
     }
 
-    private class ToFirstMatchAmong implements CommandRouter {
+    private class ToFirstMatchAmong implements Command.Router {
 
         private final CommandHandlers commandHandlers;
 
@@ -69,11 +69,6 @@ public class Pipelinr implements Pipeline {
             return matchingHandlers.get(0);
         }
 
-    }
-
-    private interface CommandRouter {
-
-        <C extends Command<R>, R> Command.Handler<C, R> route(C command);
     }
 
 }

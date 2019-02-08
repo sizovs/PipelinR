@@ -16,6 +16,9 @@ public interface Command<R> {
         }
     }
 
+    interface Router {
 
+        <C extends Command<R>, R> Handler<C, R> route(C command);
 
+    }
 }
