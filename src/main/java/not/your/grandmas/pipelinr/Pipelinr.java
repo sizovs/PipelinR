@@ -1,18 +1,17 @@
 package not.your.grandmas.pipelinr;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toList;
 
 public class Pipelinr implements Pipeline {
 
-    private final CommandRouter commandRouter;
+    private final Router router;
     private final PipelineSteps steps;
 
     public Pipelinr(CommandHandlers commandHandlers, PipelineSteps steps) {
-        this.commandRouter = new CommandRouter(commandHandlers);
+        this.router = new ToFirstMatching(commandHandlers);
         this.steps = checkNotNull(steps, "Steps must not be null");
     }
 
@@ -36,19 +35,20 @@ public class Pipelinr implements Pipeline {
 
         @Override
         public R invoke() {
-            Command.Handler<C, R> handler = commandRouter.route(command);
+            Command.Handler<C, R> handler = router.route(command);
             return handler.handle(command);
         }
     }
 
-    private class CommandRouter {
+    private class ToFirstMatching implements Router {
 
         private final CommandHandlers commandHandlers;
 
-        public CommandRouter(CommandHandlers commandHandlers) {
+        public ToFirstMatching(CommandHandlers commandHandlers) {
             this.commandHandlers = checkNotNull(commandHandlers, "Command handlers must not be null");
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public <C extends Command<R>, R> Command.Handler<C, R> route(C command) {
             List<Command.Handler> matchingHandlers = commandHandlers
@@ -61,8 +61,8 @@ public class Pipelinr implements Pipeline {
                 throw new CommandHandlerNotFoundException(command);
             }
 
-            boolean moreThanOneMatch = matchingHandlers.size() > 1;
-            if (moreThanOneMatch) {
+            boolean moreThanOneMatchingHandlerFound = matchingHandlers.size() > 1;
+            if (moreThanOneMatchingHandlerFound) {
                 throw new CommandHasMultipleHandlersException(command, matchingHandlers);
             }
 
@@ -71,5 +71,9 @@ public class Pipelinr implements Pipeline {
 
     }
 
+    private interface Router {
+
+        <C extends Command<R>, R> Command.Handler<C, R> route(C command);
+    }
 
 }
