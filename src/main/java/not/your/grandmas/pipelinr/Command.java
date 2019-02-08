@@ -1,4 +1,4 @@
-package pipelinr;
+package not.your.grandmas.pipelinr;
 
 import com.google.common.reflect.TypeToken;
 

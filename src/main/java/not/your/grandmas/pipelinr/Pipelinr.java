@@ -1,4 +1,4 @@
-package pipelinr;
+package not.your.grandmas.pipelinr;
 
 import java.util.List;
 import java.util.stream.Collectors;

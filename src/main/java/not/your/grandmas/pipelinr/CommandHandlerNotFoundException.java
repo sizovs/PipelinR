@@ -1,4 +1,4 @@
-package pipelinr;
+package not.your.grandmas.pipelinr;
 
 public class CommandHandlerNotFoundException extends RuntimeException {
 
