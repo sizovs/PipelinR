@@ -2,9 +2,9 @@
 
 ### What makes PipelinR awesome
 - [x] Ready for production
-- [x] Has no dependencies
+- [x] Zero dependencies
 - [x] Simple, yet flexible
-- [x] Coded with ❤️ and tests
+- [x] Well-crafted with 100% test coverage
 
 ### Requirements
 - [x] Java 8+
