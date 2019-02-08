@@ -1,5 +1,7 @@
 # PipelinR
 
+> **PipelinR** is a lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your Java awesome app. 
+
 ### What makes PipelinR awesome
 - [x] Ready for production
 - [x] Zero dependencies
