@@ -11,7 +11,7 @@ public class Pipelinr implements Pipeline {
     private final PipelineSteps steps;
 
     public Pipelinr(CommandHandlers commandHandlers, PipelineSteps steps) {
-        this.commandRouter = new ToFirstMatching(commandHandlers);
+        this.commandRouter = new FirstMatchAmong(commandHandlers);
         this.steps = checkNotNull(steps, "Steps must not be null");
     }
 
@@ -40,11 +40,11 @@ public class Pipelinr implements Pipeline {
         }
     }
 
-    private class ToFirstMatching implements CommandRouter {
+    private class FirstMatchAmong implements CommandRouter {
 
         private final CommandHandlers commandHandlers;
 
-        public ToFirstMatching(CommandHandlers commandHandlers) {
+        public FirstMatchAmong(CommandHandlers commandHandlers) {
             this.commandHandlers = checkNotNull(commandHandlers, "Command handlers must not be null");
         }
 
