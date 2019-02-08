@@ -1,8 +1,7 @@
 package not.your.grandmas.pipelinr;
 
-import one.util.streamex.StreamEx;
-
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 
@@ -14,7 +13,7 @@ public class CommandHandlers {
         this.commandHandlers = asList(commandHandlers);
     }
 
-    public StreamEx<Command.Handler> stream() {
-        return StreamEx.of(commandHandlers);
+    public Stream<Command.Handler> stream() {
+        return commandHandlers.stream();
     }
 }

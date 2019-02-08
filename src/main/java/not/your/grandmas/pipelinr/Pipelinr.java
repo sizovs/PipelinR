@@ -21,7 +21,6 @@ public class Pipelinr implements Pipeline {
         PipelineStep.Next<R> commandHandling = new CommandHandling<>(command);
 
         return steps
-                .stream()
                 .foldRight(commandHandling, (step, next) -> () -> step.invoke(command, next))
                 .invoke();
     }
