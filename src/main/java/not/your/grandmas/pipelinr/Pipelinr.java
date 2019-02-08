@@ -61,8 +61,8 @@ public class Pipelinr implements Pipeline {
                 throw new CommandHandlerNotFoundException(command);
             }
 
-            boolean moreThanOneMatchingHandlerFound = matchingHandlers.size() > 1;
-            if (moreThanOneMatchingHandlerFound) {
+            boolean moreThanOneMatch = matchingHandlers.size() > 1;
+            if (moreThanOneMatch) {
                 throw new CommandHasMultipleHandlersException(command, matchingHandlers);
             }
 
