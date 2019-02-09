@@ -95,7 +95,7 @@ Now we are ready to send commands for handling:
 pipeline.send(new Ping("localhost"));
 ```  
 
-Pipelinr can receive an optional, **ordered list** of custom pipeline steps. Every command will go through the pipeline steps before being handled.
+Pipelinr can receive an optional, **ordered list** of custom pipeline steps. Every command will go through the pipeline steps before being handled. Use custom steps when you want to log commands, manage transaction, collect metrics, or add [circuit breakers](https://github.com/resilience4j/resilience4j). 
 
 Pipeline steps must implement `PipelineStep` interface:
 ```
