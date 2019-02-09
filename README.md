@@ -1,5 +1,7 @@
 # PipelinR
 
+[![Latest release](https://img.shields.io/github/release/sizovs/PipelinR)](https://github.com/sizovs/PipelinR/releases/latest)
+
 > **PipelinR** is a lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your Java awesome app. 
 
 PipelinR is like [MediatR](https://github.com/jbogard/MediatR), but for Java 8+. 
