@@ -2,7 +2,7 @@
 
 > **PipelinR** is a lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your Java awesome app. 
 
-PipelinR is like [MediatR](https://github.com/jbogard/MediatR), but for Java. 
+PipelinR is like [MediatR](https://github.com/jbogard/MediatR), but for Java 8+. 
 
 Supports request/response, commands, queries, notifications and events, synchronous and async execution.
 
@@ -82,27 +82,60 @@ class RemotePingHandler implements Command.Handler<Ping, Voidy> {
 ### Pipeline
 A **pipeline** mediates between commands and handlers. We send commands to the pipeline. When the pipeline receives a command, it sends it through a sequence of pipeline steps and finally invokes the matching command handler. PipelinR comes with `Pipeline` interface, implemented by `Pipelinr`.
 
-Pipelinr must know about the command handlers:
+Pipelinr must receive a list of command handlers:
   
   
 ```
 Pipeline pipeline = new Pipelinr(() -> Stream.of(new LocalhostPingHandler(), new RemotePingHandler()));
 ```
 
-We are ready to send commands to the pipeline:
+Now we are ready to send commands for handling:
  
 ```
 pipeline.send(new Ping("localhost"));
 ```  
 
-### How to use PipelinR with Spring Framework (5.1.4+) 
+Pipelinr can receive an optional, **ordered list** of custom pipeline steps. Every command will go through the pipeline steps before being handled.
 
-Install PipelinR via Gradle:
+Pipeline steps must implement `PipelineStep` interface:
 ```
-implementation("not.your.grandmas:pipelinr:1.0.0")
+// step one (logs comamnd and the returned result)
+class LogInputAndOutput implements PipelineStep {
+
+    @Override
+    public <R, C extends Command<R>> R invoke(C command, Next<R> next) {
+        // log command
+        R response = next.invoke();
+        // log response
+        return response;
+    }
+}
+
+// step two (wraps a command handling in a transaction)
+class WrapInATransaction implements PipelineStep {
+
+    @Override
+    public <R, C extends Command<R>> R invoke(C command, Next<R> next) {
+        // start tx
+        R response = next.invoke();
+        // end tx
+        return response;
+    }
+}
 ```
 
-Configure Pipelinr:
+In the following pipeline, every command and its response will be logged, plus commands will be wrapped in a transaction:
+
+```
+Pipeline pipeline = new Pipelinr(
+    () -> Stream.of(new LocalhostPingHandler(), new RemotePingHandler()),
+    () -> Stream.of(new LogInputAndOutput(), new WrapInATransaction()
+);
+```
+
+### Using PipelinR with Spring v5.1.*+ 
+
+Inject all command handlers and pipeline steps known to Spring into the `Pipelinr`. Turn `Pipelinr` into a Spring-managed Bean:
 ```
 @Configuration
 class PipelinrConfiguration {
@@ -120,7 +153,7 @@ class Ping implements Command<String> {
 }
 ```
 
-Define a handler:
+Define a handler and make it a Spring-managed bean by adding `@Component` annotation:
 ```
 @Component
 class PingHandler implements Command.Handler<Ping, String> {
@@ -133,7 +166,7 @@ class PingHandler implements Command.Handler<Ping, String> {
 }
 ```
 
-Optionally, define pipeline steps:
+Optionally, define `Order`-ed pipeline steps: 
 ```
 @Component
 @Order(1)
@@ -164,7 +197,7 @@ class WrapInATransaction implements PipelineStep {
 }
 ```
 
-Send the command to the pipeline for processing:
+Inject `Pipeline` and start sending commands for processing:
 ```
 @SpringBootApplication
 class App implements CommandLineRunner {
@@ -188,18 +221,3 @@ class App implements CommandLineRunner {
 ### Next
 - [x] Command flags (e.g. TxFlag)?
 - [x] Notifications?
-
-### Requirements
-- [x] Java 8+
-
-### Spring demo
-
-
-### Guice demo
-
-### Dagger
-
-### HK2
-
-
-### Raw demo
