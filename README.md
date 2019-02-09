@@ -30,7 +30,7 @@ class PingHandler implements Command.Handler<Ping, String> {
 }
 ```
 
-Send the command to the pipeline for processing:
+Send the command to Pipeline for processing:
 ```
 @SpringBootApplication
 class App implements CommandLineRunner {
