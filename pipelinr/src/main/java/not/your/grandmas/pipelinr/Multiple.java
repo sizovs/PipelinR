@@ -3,8 +3,9 @@ package not.your.grandmas.pipelinr;
 import java.util.stream.Stream;
 
 @FunctionalInterface
-public interface StreamSupplier<T> {
+public interface Multiple<T> {
 
     Stream<T> supply();
+
 
 }

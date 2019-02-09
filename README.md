@@ -11,12 +11,16 @@ You can build a flexible service layer with PipelinR.
 - [x] Simple, yet flexible
 - [x] Well-crafted with 100% test coverage
 
-### Understanding PipelinR
-- Command 
-- Command.Handler
-- Pipeline
-- Pipelinr
-- PipelineStep
+### Understanding elements of PipelinR
+
+- **Command** encapsulates all information needed to perform an action at a later time. For example – `Ping`, `CreateAUser`, `SendEmail` are commands.
+   
+- **Command.Handler** encapsulates command handling logic. Every command must have a matching handler. For example `PingHandler`, `CreateAUserHandler`, `SendEmailHandler` are command handlers.
+
+- **Pipeline** receives a command, sends it through a sequence of `PipelineStep`s and finally invokes the matching command handler.
+ 
+- **Pipelinr** is an implementation of the Pipeline
+  
 
 ### How to use PipelinR with Spring Framework (5.1.4+) 
 
@@ -31,18 +35,8 @@ implementation("not.your.grandmas:pipelinr:1.0.0")
 class PipelinrConfiguration {
 
     @Bean
-    Pipelinr pipelinr(CommandHandlers commandHandlers, PipelineSteps pipelineSteps) {
-        return new Pipelinr(commandHandlers, pipelineSteps);
-    }
-
-    @Bean
-    PipelineSteps pipelineSteps(ObjectProvider<PipelineStep> providerOfPipelineSteps) {
-        return new PipelineSteps(providerOfPipelineSteps::orderedStream);
-    }
-
-    @Bean
-    CommandHandlers commandHandlers(ObjectProvider<Command.Handler> providerOfCommandHandlers) {
-        return new CommandHandlers(providerOfCommandHandlers::orderedStream);
+    Pipelinr pipelinr(ObjectProvider<Command.Handler> commandHandlers, ObjectProvider<PipelineStep> pipelineSteps) {
+        return new Pipelinr(commandHandlers::orderedStream, pipelineSteps::orderedStream);
     }
 }
 ```

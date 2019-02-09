@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,7 +20,7 @@ class PipelinrTest {
         HandlerThatExtendsAbstractClass handlerThatExtendsAbstractClass = new HandlerThatExtendsAbstractClass();
 
         // and
-        Pipelinr pipelinr = new Pipelinr(new CommandHandlers(handlerThatExtendsAbstractClass));
+        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(handlerThatExtendsAbstractClass), Stream::empty);
 
         // when
         pipelinr.send(new Ping("hi"));
@@ -43,7 +44,7 @@ class PipelinrTest {
         PipelineStep third = new UniqueStep(3, invokedStepNumbers::add);
 
         // and
-        Pipelinr pipelinr = new Pipelinr(new CommandHandlers(new Foo()), new PipelineSteps(first, second, third));
+        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(new Foo()), () -> Stream.of(first, second, third));
 
         // when
         pipelinr.send(new Ping());
@@ -59,7 +60,7 @@ class PipelinrTest {
         Bye bye = new Bye();
 
         // and
-        Pipelinr pipelinr = new Pipelinr(new CommandHandlers(hi, bye));
+        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(hi, bye), Stream::empty);
 
         // when
         pipelinr.send(new Ping("hi"));
@@ -76,7 +77,7 @@ class PipelinrTest {
     @Test
     void throwsIfSentCommandHasNoMatchingHandler() {
         // given
-        Pipelinr pipelinr = new Pipelinr(new CommandHandlers());
+        Pipelinr pipelinr = new Pipelinr(Stream::empty, Stream::empty);
 
         // when
         Throwable e = assertThrows(CommandHandlerNotFoundException.class, () -> {
@@ -90,7 +91,7 @@ class PipelinrTest {
     @Test
     void throwsIfSentCommandHasMultipleHandlers() {
         // given
-        Pipelinr pipelinr = new Pipelinr(new CommandHandlers(new Bar(), new Foo()));
+        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(new Bar(), new Foo()), Stream::empty);
 
         // when
         Throwable e = assertThrows(CommandHasMultipleHandlersException.class, () -> {

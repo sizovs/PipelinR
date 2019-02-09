@@ -9,18 +9,8 @@ import org.springframework.context.annotation.Configuration;
 class PipelinrConfiguration {
 
     @Bean
-    Pipelinr pipelinr(CommandHandlers commandHandlers, PipelineSteps pipelineSteps) {
-        return new Pipelinr(commandHandlers, pipelineSteps);
-    }
-
-    @Bean
-    PipelineSteps pipelineSteps(ObjectProvider<PipelineStep> providerOfPipelineSteps) {
-        return new PipelineSteps(providerOfPipelineSteps::orderedStream);
-    }
-
-    @Bean
-    CommandHandlers commandHandlers(ObjectProvider<Command.Handler> providerOfCommandHandlers) {
-        return new CommandHandlers(providerOfCommandHandlers::orderedStream);
+    Pipelinr pipelinr(ObjectProvider<PipelineStep> providerOfPipelineSteps, ObjectProvider<Command.Handler> providerOfCommandHandlers) {
+        return new Pipelinr(providerOfCommandHandlers::orderedStream, providerOfPipelineSteps::orderedStream);
     }
 
 }
