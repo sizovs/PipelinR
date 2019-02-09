@@ -13,7 +13,7 @@ It's like [MediatR](https://github.com/jbogard/MediatR), but for Java – great 
 
 ### Understanding elements of PipelinR
 
-##### Commands
+#### Commands
 
 **Command** encapsulates all information needed to perform an action at a later time. You create a command by implementing `Command` interface, where `R` is a return type: 
 
