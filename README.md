@@ -80,7 +80,7 @@ class RemotePingHandler implements Command.Handler<Ping, Voidy> {
 ```
 
 ### Pipeline
-A **pipeline** mediates between commands and handlers. We send commands to the pipeline. When the pipeline receives a command, it sends it through a sequence of pipeline steps and finally invokes the matching command handler. PipelinR comes with `Pipeline` interface, implemented by `Pipelinr`.
+A **pipeline** [mediates](https://en.wikipedia.org/wiki/Mediator_pattern) between commands and handlers. We send commands to the pipeline. When the pipeline receives a command, it sends it through a sequence of pipeline steps and finally invokes the matching command handler. PipelinR comes with `Pipeline` interface, implemented by `Pipelinr`.
 
 Pipelinr must receive a list of command handlers:
   
