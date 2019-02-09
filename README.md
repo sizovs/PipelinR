@@ -17,7 +17,7 @@ class Ping implements Command<String> {
 }
 ```
 
-Define a handler. 
+Define a handler:
 ```
 @Component
 class PingHandler implements Command.Handler<Ping, String> {
@@ -30,7 +30,7 @@ class PingHandler implements Command.Handler<Ping, String> {
 }
 ```
 
-Define a pipeline step (optional):
+Optionally, define pipeline steps:
 ```
 @Component
 @Order(1)
