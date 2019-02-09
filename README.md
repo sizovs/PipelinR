@@ -13,6 +13,10 @@ You can build a flexible service layer with PipelinR.
 - [x] Simple, yet flexible
 - [x] Well-crafted with 100% test coverage
 
+### Next
+- [x] Command flags (e.g. TxFlag)?
+- [x] Notifications?
+
 ### Requirements
 - [x] Java 8+
 

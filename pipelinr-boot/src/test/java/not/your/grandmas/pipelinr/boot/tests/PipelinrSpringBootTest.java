@@ -27,7 +27,7 @@ public class PipelinrSpringBootTest {
 
     @Test
     public void supportsOrderedPipelineSteps() {
-        // givne
+        // given
         Ping ping = new Ping();
 
         // when
@@ -83,7 +83,6 @@ class StepThree implements PipelineStep {
 @Component
 @Order(2)
 class StepTwo implements PipelineStep {
-
 
     @Override
     public <R, C extends Command<R>> R invoke(C command, Next<R> next) {
