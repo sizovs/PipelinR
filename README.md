@@ -4,9 +4,23 @@
 
 You can build a flexible service layer with PipelinR.
 
+
+### What makes PipelinR awesome
+- [x] Ready for production
+- [x] Zero dependencies
+- [x] Simple, yet flexible
+- [x] Well-crafted with 100% test coverage
+
+### Understanding PipelinR
+- Command 
+- Command.Handler
+- Pipeline
+- Pipelinr
+- PipelineStep
+
 ### How to use PipelinR with Spring Framework (5.1.4+) 
 
-✅ Install `pipelinr-boot` via Gradle:
+✅ Install PipelinR via Gradle:
 ```
 implementation("not.your.grandmas:pipelinr:1.0.0")
 ```
@@ -33,13 +47,13 @@ class PipelinrConfiguration {
 }
 ```
 
-Define a command:
+✅ Define a command:
 ```
 class Ping implements Command<String> {
 }
 ```
 
-Define a handler:
+✅ Define a handler:
 ```
 @Component
 class PingHandler implements Command.Handler<Ping, String> {
@@ -52,7 +66,7 @@ class PingHandler implements Command.Handler<Ping, String> {
 }
 ```
 
-Optionally, define pipeline steps:
+✅ Optionally, define pipeline steps:
 ```
 @Component
 @Order(1)
@@ -83,7 +97,7 @@ class WrapInATransaction implements PipelineStep {
 }
 ```
 
-Send the command to the pipeline for processing:
+✅ Send the command to the pipeline for processing:
 ```
 @SpringBootApplication
 class App implements CommandLineRunner {
@@ -103,13 +117,6 @@ class App implements CommandLineRunner {
 }
 
 ```
-
-
-### What makes PipelinR awesome
-- [x] Ready for production
-- [x] Zero dependencies
-- [x] Simple, yet flexible
-- [x] Well-crafted with 100% test coverage
 
 ### Next
 - [x] Command flags (e.g. TxFlag)?
