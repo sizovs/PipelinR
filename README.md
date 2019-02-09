@@ -218,6 +218,30 @@ class App implements CommandLineRunner {
 
 ```
 
+### Async commands
+PipelinR works with async or reactive applications. For example, commands can return `CompletableFuture`:
+
+```
+class AsyncPing implements Command<CompletableFuture<String>> {
+    
+    @Component
+    static class Handler implements Command.Handler<AsyncPing, CompletableFuture<String>> {
+
+        @Override
+        public CompletableFuture<String> handle(AsyncPing command) {
+            return CompletableFuture.completedFuture("OK");
+        }
+    }
+    
+}
+```
+
+Sending `AsyncPing` to the pipeline returns `CompletableFuture`:
+
+```
+CompletableFuture<String> okInFuture = pipeline.send(new Ping())
+```
+
 ### Next
 - [x] Command flags (e.g. TxFlag)?
 - [x] Notifications?
