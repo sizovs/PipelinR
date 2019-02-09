@@ -25,5 +25,9 @@ You can build a flexible service layer with PipelinR.
 
 ### Guice demo
 
+### Dagger
+
+### HK2
+
 
 ### Raw demo
