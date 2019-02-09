@@ -6,10 +6,34 @@ You can build a flexible service layer with PipelinR.
 
 ### Spring Boot example
 
-You should install `pipelinr-boot` via Gradle:
-```implementation("not.your.grandmas:pipelinr-boot:1.0.0")```
+Warning: this demo requires Spring v5.1.4.
 
-Warning: pipelinr-boot depends on Spring v5.1.4.
+You should install `pipelinr-boot` via Gradle:
+```
+    implementation("not.your.grandmas:pipelinr-boot:1.0.0")
+```
+
+Configure Pipelinr:
+```
+@Configuration
+class PipelinrConfiguration {
+
+    @Bean
+    Pipelinr pipelinr(CommandHandlers commandHandlers, PipelineSteps pipelineSteps) {
+        return new Pipelinr(commandHandlers, pipelineSteps);
+    }
+
+    @Bean
+    PipelineSteps pipelineSteps(ObjectProvider<PipelineStep> providerOfPipelineSteps) {
+        return new PipelineSteps(providerOfPipelineSteps::orderedStream);
+    }
+
+    @Bean
+    CommandHandlers commandHandlers(ObjectProvider<Command.Handler> providerOfCommandHandlers) {
+        return new CommandHandlers(providerOfCommandHandlers::orderedStream);
+    }
+}
+```
 
 Define a command:
 ```
