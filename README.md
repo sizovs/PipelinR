@@ -59,7 +59,7 @@ class PingHandler implements Command.Handler<Ping, Voidy> {
 }
 ```   
 
-A command must have **a single** matching handler. By default, PipelinR finds a matching handler by looking at the first generic parameter:
+A command must have **a single** matching handler. By default, PipelinR finds a matching handler by looking at the first generic parameter. It's `Ping`:
 
 ```
 class PingHandler implements Command.Handler<Ping, Voidy> {
@@ -67,7 +67,7 @@ class PingHandler implements Command.Handler<Ping, Voidy> {
 }
 ```
 
-We can override the default matching behavior. For example, we can select a matching handler at runtime, depending on a condition:
+We can override the default matching behavior. By overriding `matches` method, we can select a matching handler at runtime, depending on a condition:
 ```
 class LocalhostPingHandler implements Command.Handler<Ping, Voidy> {
     ...
