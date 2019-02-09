@@ -6,13 +6,10 @@ You can build a flexible service layer with PipelinR.
 
 
 ### What makes PipelinR awesome
-🚀 Ready for production
-
-🚀 Zero dependencies
-
-🚀 Simple, yet flexible
-
-🚀 Well-crafted with 100% test coverage
+- 🚀 Ready for production
+- 🚀 Zero dependencies
+- 🚀 Simple, yet flexible
+- 🚀 Well-crafted with 100% test coverage
 
 ### Understanding elements of PipelinR
 
