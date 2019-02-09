@@ -20,7 +20,7 @@ class PipelinrTest {
         HandlerThatExtendsAbstractClass handlerThatExtendsAbstractClass = new HandlerThatExtendsAbstractClass();
 
         // and
-        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(handlerThatExtendsAbstractClass), Stream::empty);
+        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(handlerThatExtendsAbstractClass));
 
         // when
         pipelinr.send(new Ping("hi"));
@@ -60,7 +60,7 @@ class PipelinrTest {
         Bye bye = new Bye();
 
         // and
-        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(hi, bye), Stream::empty);
+        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(hi, bye));
 
         // when
         pipelinr.send(new Ping("hi"));
@@ -77,7 +77,7 @@ class PipelinrTest {
     @Test
     void throwsIfSentCommandHasNoMatchingHandler() {
         // given
-        Pipelinr pipelinr = new Pipelinr(Stream::empty, Stream::empty);
+        Pipelinr pipelinr = new Pipelinr(Stream::empty);
 
         // when
         Throwable e = assertThrows(CommandHandlerNotFoundException.class, () -> {
@@ -91,7 +91,7 @@ class PipelinrTest {
     @Test
     void throwsIfSentCommandHasMultipleHandlers() {
         // given
-        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(new Bar(), new Foo()), Stream::empty);
+        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(new Bar(), new Foo()));
 
         // when
         Throwable e = assertThrows(CommandHasMultipleHandlersException.class, () -> {

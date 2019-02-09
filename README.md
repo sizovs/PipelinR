@@ -16,24 +16,18 @@ Supports request/response, commands, queries, notifications and events, synchron
 ### Commands
 
 **Commands** encapsulate all information needed to perform an action at a later time. You create a command by implementing `Command<R>` interface, where `R` is a return type. If a command has nothing to return, use a built-in `Voidy` return type: 
-
+     
 ```
 class Ping implements <Command, Voidy> {
 
     private final String host;
-    private final int times;
     
-    Ping(String host, int times) {
+    Ping(String host) {
         this.host = host;
-        this.times = times;
     }
     
     public String host() {
         return host;
-    }
-    
-    public int times() {
-        return times;
     }
     
 }
@@ -49,7 +43,6 @@ class PingHandler implements Command.Handler<Ping, Voidy> {
     @Override
     public String handle(Ping command) {
         String host = command.host();
-        int times = command.times();
         
         // ... ping logic here ...
         
@@ -86,12 +79,21 @@ class RemotePingHandler implements Command.Handler<Ping, Voidy> {
     }
 ```
 
-  
+### Pipeline
+A **pipeline** mediates between commands and handlers. We send commands to the pipeline. When the pipeline receives a command, it sends it through a sequence of pipeline steps and finally invokes the matching command handler. PipelinR comes with `Pipeline` interface, implemented by `Pipelinr`.
 
-- **Pipeline** receives a command, sends it through a sequence of `PipelineStep`s and finally invokes the matching command handler.
- 
-- **Pipelinr** is an implementation of the Pipeline
+Pipelinr must know about the command handlers:
   
+  
+```
+Pipeline pipeline = new Pipelinr(() -> Stream.of(new LocalhostPingHandler(), new RemotePingHandler()));
+```
+
+We are ready to send commands to the pipeline:
+ 
+```
+pipeline.send(new Ping("localhost"));
+```  
 
 ### How to use PipelinR with Spring Framework (5.1.4+) 
 

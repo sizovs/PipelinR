@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import one.util.streamex.StreamEx;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toList;
@@ -12,6 +13,10 @@ public class Pipelinr implements Pipeline {
 
     private final Command.Router router;
     private final Multiple<PipelineStep> steps;
+
+    public Pipelinr(Multiple<Command.Handler> commandHandlers) {
+        this(commandHandlers, Stream::empty);
+    }
 
     public Pipelinr(Multiple<Command.Handler> commandHandlers, Multiple<PipelineStep> steps) {
         this.router = new ToFirstMatchAmong(commandHandlers);
