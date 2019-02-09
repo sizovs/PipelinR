@@ -6,6 +6,8 @@ import not.your.grandmas.pipelinr.PipelineStep;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.annotation.Order;
@@ -94,9 +96,17 @@ class StepTwo implements PipelineStep {
 }
 
 @SpringBootApplication
-class App {
+class App implements CommandLineRunner {
 
 
+    @Override
+    public void run(String... args) {
+
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(App.class, args);
+    }
 }
 
 

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class PipelinrConfiguration {
+class PipelinrConfiguration {
 
     @Bean
     Pipelinr pipelinr(CommandHandlers commandHandlers, PipelineSteps pipelineSteps) {
@@ -22,9 +22,6 @@ public class PipelinrConfiguration {
     CommandHandlers commandHandlers(ObjectProvider<Command.Handler> providerOfCommandHandlers) {
         return new CommandHandlers(providerOfCommandHandlers::orderedStream);
     }
-
-
-
 
 }
 

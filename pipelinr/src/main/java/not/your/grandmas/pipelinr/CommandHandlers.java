@@ -6,10 +6,10 @@ import java.util.stream.Stream;
 
 public class CommandHandlers {
 
-    private final Supplier supplierOfCommandHandlers;
+    private final StreamSupplier<Command.Handler> supplierOfCommandHandlers;
 
-    public CommandHandlers(Supplier supplier) {
-        this.supplierOfCommandHandlers = supplier;
+    public CommandHandlers(StreamSupplier<Command.Handler> supplierOfStream) {
+        this.supplierOfCommandHandlers = supplierOfStream;
     }
 
     public CommandHandlers(Collection<Command.Handler> commandHandlers) {
@@ -24,9 +24,5 @@ public class CommandHandlers {
         return supplierOfCommandHandlers.supply();
     }
 
-    @FunctionalInterface
-    public interface Supplier {
-        Stream<Command.Handler> supply();
-    }
 
 }

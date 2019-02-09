@@ -6,14 +6,13 @@ import one.util.streamex.StreamEx;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.BiFunction;
-import java.util.stream.Stream;
 
 public class PipelineSteps {
 
-    private final Supplier supplierOfSteps;
+    private final StreamSupplier<PipelineStep> supplierOfSteps;
 
-    public PipelineSteps(Supplier supplier) {
-        this.supplierOfSteps = supplier;
+    public PipelineSteps(StreamSupplier<PipelineStep> supplierOfStream) {
+        this.supplierOfSteps = supplierOfStream;
     }
 
     public PipelineSteps(PipelineStep... steps) {
@@ -28,9 +27,5 @@ public class PipelineSteps {
         return StreamEx.of(supplierOfSteps.supply()).foldRight(seed, accumulator);
     }
 
-    @FunctionalInterface
-    public interface Supplier {
-        Stream<PipelineStep> supply();
-    }
 
 }
