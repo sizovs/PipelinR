@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+not.your.grandmas.pipelinr.boot.PipelinrConfiguration

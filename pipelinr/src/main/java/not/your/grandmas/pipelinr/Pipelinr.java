@@ -10,6 +10,10 @@ public class Pipelinr implements Pipeline {
     private final Command.Router router;
     private final PipelineSteps steps;
 
+    public Pipelinr(CommandHandlers commandHandlers) {
+        this(commandHandlers, new PipelineSteps());
+    }
+
     public Pipelinr(CommandHandlers commandHandlers, PipelineSteps steps) {
         this.router = new ToFirstMatchAmong(commandHandlers);
         this.steps = checkNotNull(steps, "Steps must not be null");

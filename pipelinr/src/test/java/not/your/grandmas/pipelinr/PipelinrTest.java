@@ -19,7 +19,7 @@ class PipelinrTest {
         HandlerThatExtendsAbstractClass handlerThatExtendsAbstractClass = new HandlerThatExtendsAbstractClass();
 
         // and
-        Pipelinr pipelinr = new Pipelinr(new CommandHandlers(handlerThatExtendsAbstractClass), new PipelineSteps());
+        Pipelinr pipelinr = new Pipelinr(new CommandHandlers(handlerThatExtendsAbstractClass));
 
         // when
         pipelinr.send(new Ping("hi"));
@@ -49,7 +49,7 @@ class PipelinrTest {
         pipelinr.send(new Ping());
 
         // then
-        assertThat(invokedStepNumbers).containsExactlyInAnyOrder(1, 2, 3);
+        assertThat(invokedStepNumbers).containsExactly(1, 2, 3);
     }
 
     @Test
@@ -59,7 +59,7 @@ class PipelinrTest {
         Bye bye = new Bye();
 
         // and
-        Pipelinr pipelinr = new Pipelinr(new CommandHandlers(hi, bye), new PipelineSteps());
+        Pipelinr pipelinr = new Pipelinr(new CommandHandlers(hi, bye));
 
         // when
         pipelinr.send(new Ping("hi"));
@@ -76,7 +76,7 @@ class PipelinrTest {
     @Test
     void throwsIfSentCommandHasNoMatchingHandler() {
         // given
-        Pipelinr pipelinr = new Pipelinr(new CommandHandlers(), new PipelineSteps());
+        Pipelinr pipelinr = new Pipelinr(new CommandHandlers());
 
         // when
         Throwable e = assertThrows(CommandHandlerNotFoundException.class, () -> {
@@ -90,7 +90,7 @@ class PipelinrTest {
     @Test
     void throwsIfSentCommandHasMultipleHandlers() {
         // given
-        Pipelinr pipelinr = new Pipelinr(new CommandHandlers(new Bar(), new Foo()), new PipelineSteps());
+        Pipelinr pipelinr = new Pipelinr(new CommandHandlers(new Bar(), new Foo()));
 
         // when
         Throwable e = assertThrows(CommandHasMultipleHandlersException.class, () -> {

@@ -1,1 +1,2 @@
-rootProject.name = "pipelinr"
+include("pipelinr", "pipelinr-boot")
+//rootProject.name = "pipelinr"

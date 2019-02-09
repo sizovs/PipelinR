@@ -2,6 +2,11 @@
 
 > **PipelinR** is a lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your Java awesome app. 
 
+You can build a flexible service layer with PipelinR.
+
+### Spring example
+
+
 ### What makes PipelinR awesome
 - [x] Ready for production
 - [x] Zero dependencies
