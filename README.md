@@ -4,16 +4,14 @@
 
 You can build a flexible service layer with PipelinR.
 
-### Spring Boot example
+### How to use PipelinR with Spring Framework (5.1.4+) 
 
-Warning: this demo requires Spring v5.1.4.
-
-You should install `pipelinr-boot` via Gradle:
+✅ Install `pipelinr-boot` via Gradle:
 ```
-    implementation("not.your.grandmas:pipelinr-boot:1.0.0")
+implementation("not.your.grandmas:pipelinr:1.0.0")
 ```
 
-Configure Pipelinr:
+✅ Configure Pipelinr:
 ```
 @Configuration
 class PipelinrConfiguration {
