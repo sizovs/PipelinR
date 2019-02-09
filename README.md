@@ -15,7 +15,7 @@ It's like [MediatR](https://github.com/jbogard/MediatR), but for Java – great 
 
 #### ✅ Commands 
 
-**Command** encapsulates all information needed to perform an action at a later time. You create a command by implementing `Command` interface, where `R` is a return type: 
+**Commands** encapsulate all information needed to perform an action at a later time. You create a command by implementing `Command` interface, where `R` is a return type: 
 
 ```
 class Ping implements <Command, R> {
@@ -39,10 +39,11 @@ class Ping implements <Command, R> {
 }
 ```
 
-If a command has nothing to return, a built-in `Voidy` type.   
+If a command has nothing to return, use a built-in `Voidy` return type.   
    
+#### ✅ Command Handlers    
    
-- **Command.Handler** encapsulates command handling logic. Every command must have a matching handler. For example `PingHandler`, `CreateAUserHandler`, `SendEmailHandler` are command handlers.
+**Command Handlers** encapsulate command handling logic. Every command must have a matching handler. You create a handler by implementing `Command.Handler` interface.
 
 - **Pipeline** receives a command, sends it through a sequence of `PipelineStep`s and finally invokes the matching command handler.
  
