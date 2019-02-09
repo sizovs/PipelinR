@@ -2,7 +2,7 @@
 
 > **PipelinR** is a lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your Java awesome app. 
 
-You can build a flexible service layer with PipelinR.
+It's like [MediatR](https://github.com/jbogard/MediatR), but for Java – great for building a flexible service layer.
 
 
 ### What makes PipelinR awesome
@@ -13,7 +13,34 @@ You can build a flexible service layer with PipelinR.
 
 ### Understanding elements of PipelinR
 
-- **Command** encapsulates all information needed to perform an action at a later time. For example – `Ping`, `CreateAUser`, `SendEmail` are commands.
+##### Commands
+
+**Command** encapsulates all information needed to perform an action at a later time. You create a command by implementing `Command` interface, where `R` is a return type: 
+
+```
+class Ping implements <Command, R> {
+
+    private final String host;
+    private final int times;
+    
+    Ping(String host, int times) {
+        this.host = host;
+        this.times = times;
+    }
+    
+    public String host() {
+        return host;
+    }
+    
+    public int times() {
+        return times;
+    }
+    
+}
+```
+
+If a command has nothing to return, a built-in `Voidy` type.   
+   
    
 - **Command.Handler** encapsulates command handling logic. Every command must have a matching handler. For example `PingHandler`, `CreateAUserHandler`, `SendEmailHandler` are command handlers.
 
