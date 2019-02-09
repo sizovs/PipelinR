@@ -184,6 +184,7 @@ class PipelinrTest {
             public Voidy handle(Ping command) {
                 return new Voidy();
             }
+
         }
 
         static class HandlerThatExtendsAbstractClass extends AbstractHandler<Ping, Voidy> {

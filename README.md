@@ -2,23 +2,23 @@
 
 > **PipelinR** is a lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your Java awesome app. 
 
-It's like [MediatR](https://github.com/jbogard/MediatR), but for Java – great for building a flexible service layer.
+PipelinR is like [MediatR](https://github.com/jbogard/MediatR), but for Java. 
+
+Supports request/response, commands, queries, notifications and events, synchronous and async execution.
 
 
 ### What makes PipelinR awesome
-- 🚀 Ready for production
-- 🚀 Zero dependencies
-- 🚀 Simple, yet flexible
-- 🚀 Well-crafted with 100% test coverage
+- Ready for production
+- Zero dependencies
+- Simple, yet flexible
+- Well-crafted with 100% test coverage
 
-### Understanding elements of PipelinR
+### Commands
 
-#### ✅ Commands 
-
-**Commands** encapsulate all information needed to perform an action at a later time. You create a command by implementing `Command` interface, where `R` is a return type: 
+**Commands** encapsulate all information needed to perform an action at a later time. You create a command by implementing `Command<R>` interface, where `R` is a return type. If a command has nothing to return, use a built-in `Voidy` return type: 
 
 ```
-class Ping implements <Command, R> {
+class Ping implements <Command, Voidy> {
 
     private final String host;
     private final int times;
@@ -37,13 +37,56 @@ class Ping implements <Command, R> {
     }
     
 }
+```   
+   
+### Command Handlers    
+   
+**Command Handlers** encapsulate command handling logic. You create a handler by implementing `Command.Handler<C, R>` interface, where `C` is a command type and `R` is a return type.
+
+```
+class PingHandler implements Command.Handler<Ping, Voidy> {
+
+    @Override
+    public String handle(Ping command) {
+        String host = command.host();
+        int times = command.times();
+        
+        // ... ping logic here ...
+        
+        return new Voidy();
+    }
+    
+}
+```   
+
+A command must have **a single** matching handler. By default, PipelinR finds a matching handler by looking at the first generic parameter:
+
+```
+class PingHandler implements Command.Handler<Ping, Voidy> {
+    ...
+}
 ```
 
-If a command has nothing to return, use a built-in `Voidy` return type.   
-   
-#### ✅ Command Handlers    
-   
-**Command Handlers** encapsulate command handling logic. Every command must have a matching handler. You create a handler by implementing `Command.Handler` interface.
+We can override the default matching behavior. For example, we can select a matching handler at runtime, depending on a condition:
+```
+class LocalhostPingHandler implements Command.Handler<Ping, Voidy> {
+    ...
+    @Override
+    public boolean matches(Ping command) {
+        return command.host().equals("localhost");
+    }
+```
+
+```
+class RemotePingHandler implements Command.Handler<Ping, Voidy> {
+    ...
+    @Override
+    public boolean matches(Ping command) {
+        return !command.host().equals("localhost");
+    }
+```
+
+  
 
 - **Pipeline** receives a command, sends it through a sequence of `PipelineStep`s and finally invokes the matching command handler.
  
@@ -52,12 +95,12 @@ If a command has nothing to return, use a built-in `Voidy` return type.
 
 ### How to use PipelinR with Spring Framework (5.1.4+) 
 
-✅ Install PipelinR via Gradle:
+Install PipelinR via Gradle:
 ```
 implementation("not.your.grandmas:pipelinr:1.0.0")
 ```
 
-✅ Configure Pipelinr:
+Configure Pipelinr:
 ```
 @Configuration
 class PipelinrConfiguration {
@@ -69,13 +112,13 @@ class PipelinrConfiguration {
 }
 ```
 
-✅ Define a command:
+Define a command:
 ```
 class Ping implements Command<String> {
 }
 ```
 
-✅ Define a handler:
+Define a handler:
 ```
 @Component
 class PingHandler implements Command.Handler<Ping, String> {
@@ -88,7 +131,7 @@ class PingHandler implements Command.Handler<Ping, String> {
 }
 ```
 
-✅ Optionally, define pipeline steps:
+Optionally, define pipeline steps:
 ```
 @Component
 @Order(1)
@@ -119,7 +162,7 @@ class WrapInATransaction implements PipelineStep {
 }
 ```
 
-✅ Send the command to the pipeline for processing:
+Send the command to the pipeline for processing:
 ```
 @SpringBootApplication
 class App implements CommandLineRunner {
