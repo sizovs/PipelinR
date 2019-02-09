@@ -30,6 +30,37 @@ class PingHandler implements Command.Handler<Ping, String> {
 }
 ```
 
+Define a pipeline step (optional):
+```
+@Component
+@Order(1)
+class LogInputAndOutput implements PipelineStep {
+
+    @Override
+    public <R, C extends Command<R>> R invoke(C command, Next<R> next) {
+        // log command
+        R response = next.invoke();
+        // log response
+        return response;
+    }
+}
+```
+
+```
+@Component
+@Order(2)
+class WrapInATransaction implements PipelineStep {
+
+    @Override
+    public <R, C extends Command<R>> R invoke(C command, Next<R> next) {
+        // start tx
+        R response = next.invoke();
+        // end tx
+        return response;
+    }
+}
+```
+
 Send the command to the pipeline for processing:
 ```
 @SpringBootApplication
