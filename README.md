@@ -12,7 +12,7 @@
 > **PipelinR** is a lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your awesome Java app. 
 
 
-PipelinR has been battle-proven on production, as a service layer in some cool FinTech apps. 
+PipelinR has been battle-proven on production, as a service layer in some cool FinTech apps. PipelinR has helped teams switch from a giant service classes handling all use cases to small handlers following single responsibility principle.
 
 ## Table of contents
 - [How to use](#how-to-use)
