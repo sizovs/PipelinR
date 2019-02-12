@@ -19,7 +19,7 @@ PipelinR has been battle-proven on production, as a service layer in some cool F
 - [Commands](#commands)
 - [Handlers](#handlers)
 - [Pipeline](#pipeline)
-- [Spring Usage](#spring-usage)
+- [Spring Example](#spring-example)
 - [Async](#async)
 - [CQRS](#cqrs)
 - [How to contribute](#how-to-contribute)
@@ -179,7 +179,7 @@ Pipeline pipeline = new Pipelinr(
 );
 ```
 
-## Spring Usage
+## Spring Example
 
 PipelinR works well with Spring and Spring Boot. 
 
@@ -236,6 +236,8 @@ class Application {
 }
 
 ```
+
+You can check fully working Spring Boot demo app [here](https://github.com/sizovs/PipelinR-demo).
 
 ## Async
 
