@@ -1,0 +1,13 @@
+.idea
+*.iml
+.gradle
+.classpath
+.project
+.settings
+.vscode
+.envrc
+.DS_Store
+bin
+build
+out
+gradle.properties
