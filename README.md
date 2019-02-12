@@ -7,7 +7,7 @@
 [![codebeat badge](https://codebeat.co/badges/9f494efc-3c85-45ca-b1a2-52e4f1879f02)](https://codebeat.co/projects/github-com-sizovs-pipelinr-master)
 
 
-[![Maven Central](https://img.shields.io/maven-central/v/sizovs/pipelinr.svg)](https://maven-badges.herokuapp.com/maven-central/sizovs/pipelinr)
+[ ![Download](https://api.bintray.com/packages/eduardsi/maven/pipelinr/images/download.svg) ](https://bintray.com/eduardsi/maven/pipelinr/_latestVersion)
 
 > **PipelinR** is a lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your awesome Java app. 
 
@@ -36,15 +36,26 @@ Maven:
 <dependency>
   <groupId>an.awesome.pipelinr</groupId>
   <artifactId>pipelinr</artifactId>
-  <version>1.0.0</version>
 </dependency>
+
+<repositories>
+  <repository>
+    <id>central</id>
+    <name>bintray</name>
+    <url>http://jcenter.bintray.com</url>
+  </repository>
+</repositories>
 ```
 
 Gradle:
 
 ```groovy
+repositories {
+    jcenter()
+}
+
 dependencies {
-    compile 'an.awesome:pipelinr:1.0.0'
+    compile 'an.awesome:pipelinr:+'
 }
 ```
 
