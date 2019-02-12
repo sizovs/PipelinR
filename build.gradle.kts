@@ -7,7 +7,7 @@ buildscript {
 }
 
 group = "an.awesome"
-version = project.findProperty("version") ?: "0.0.3"
+version = project.findProperty("version") ?: "UNSPECIFIED"
 
 plugins {
     java
@@ -27,12 +27,44 @@ tasks.register<Jar>("javadocJar") {
     from(tasks.javadoc.get().destinationDir)
 }
 
+val projectUrl = "https://github.com/sizovs/pipelinr"
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
             artifact(tasks["sourcesJar"])
             artifact(tasks["javadocJar"])
+            pom {
+                name.set("PipelinR")
+                description.set("A lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your Java awesome app.")
+                url.set(projectUrl)
+            }
+//            pom.withXml {
+//                val root = asNode()
+//                val url = "https://github.com/sizovs/pipelinr"
+//                root.appendNode("name", "PipelinR")
+//                root.appendNode("description", "A lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your Java awesome app.")
+//                root.appendNode("url", url)
+//            }
+            pom.licenses {
+                license {
+                    name.set("MIT License")
+                    url.set(projectUrl)
+                    distribution.set("repo")
+                }
+            }
+            pom.developers {
+                developer {
+                    id.set("sizovs")
+                    name.set("Eduards Sizovs")
+                    email.set("eduards@sizovs.net")
+                }
+            }
+            pom.scm {
+                url.set(projectUrl)
+                connection.set(projectUrl)
+                developerConnection.set(projectUrl)
+            }
         }
     }
 }
