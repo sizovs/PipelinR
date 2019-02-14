@@ -78,7 +78,7 @@ class Ping implements Command<Voidy> {
    
 ## Handlers    
    
-**Handlers** encapsulate command handling logic. You create a handler by implementing `Command.Handler<C, R>` interface, where `C` is a command type and `R` is a return type.
+**Handlers** encapsulate command handling logic. You create a handler by implementing `Command.Handler<C, R>` interface, where `C` is a command type and `R` is a return type:
 
 ```java
 class PingHandler implements Command.Handler<Ping, Voidy> {
@@ -100,9 +100,9 @@ class PingHandler implements Command.Handler<Ping, Voidy> {
 }
 ```
 
-`PingHandler` will handle `Ping` command and its subclasses.
+`PingHandler` will handle `Ping` command, as well as commands that extend `Ping`.
 
-You can override the default matching behavior. By overriding `matches` method, you can select a matching handler at runtime, depending on some condition:
+You can override the default matching behavior. By overriding `matches` method, you can select a matching handler at runtime, depending on a condition:
 
 ```java
 class LocalhostPingHandler implements Command.Handler<Ping, Voidy> {
@@ -125,7 +125,7 @@ class RemotePingHandler implements Command.Handler<Ping, Voidy> {
 ```
 
 ## Pipeline
-A **pipeline** mediates between commands and handlers. You send commands to the pipeline. When the pipeline receives a command, it sends the command through a sequence of pipeline steps and finally invokes the matching command handler. `Pipelinr` is a default implementation of a `Pipeline` interface.
+A **pipeline** mediates between commands and handlers. You send commands to the pipeline. When the pipeline receives a command, it sends the command through a sequence of pipeline steps and finally invokes the matching command handler. `Pipelinr` is a default implementation of `Pipeline` interface.
 
 To construct a `Pipeline`, create an instance of `Pipelinr` and provide a list of command handlers:
   
@@ -142,10 +142,10 @@ pipeline.send(new Ping("localhost"));
 
 `Pipelinr` can receive an optional, **ordered list** of custom pipeline steps. Every command will go through the pipeline steps before being handled. Use steps when you want to add extra behavior to command handlers, such as logging, transactions or metrics. 
 
-A pipeline step must implement `PipelineStep` interface:
+Pipeline steps must implement `PipelineStep` interface:
 
 ```java
-// step one (logs a command and the returned result)
+// step one (logs a command and a returned result)
 class LogInputAndOutput implements PipelineStep {
 
     @Override
@@ -183,7 +183,7 @@ Pipeline pipeline = new Pipelinr(
 
 PipelinR works well with Spring and Spring Boot. 
 
-Start by configuring a `Pipeline`. Create `Pipelinr` and inject all command handlers and **ordered** pipeline steps via the constructor. 
+Start by configuring a `Pipeline`. Create an instance of `Pipelinr` and inject all command handlers and **ordered** pipeline steps via the constructor:
 
 ```java
 @Configuration
@@ -196,7 +196,7 @@ class PipelinrConfiguration {
 }
 ```
 
-Define a Spring-managed command handler:
+Define Spring-managed command handlers:
 
 ```java
 @Component
