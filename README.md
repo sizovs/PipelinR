@@ -34,8 +34,9 @@ Maven:
 
 ```xml
 <dependency>
-  <groupId>an.awesome.pipelinr</groupId>
+  <groupId>an.awesome</groupId>
   <artifactId>pipelinr</artifactId>
+  <version>0.2</version>
 </dependency>
 
 <repositories>
