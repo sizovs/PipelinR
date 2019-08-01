@@ -35,8 +35,18 @@ public interface Command<R> {
             } else {
                 type = (ParameterizedType) genericSuperclass;
             }
-            Class<?> handlerCommand = (Class<?>) type.getActualTypeArguments()[0];
-            return handlerCommand.isAssignableFrom(otherClass);
+
+            Type handlerCommand = type.getActualTypeArguments()[0];
+            Class<?> handlerCommandClass;
+
+            if (handlerCommand instanceof ParameterizedType) {
+                ParameterizedType parameterized = (ParameterizedType) handlerCommand;
+                handlerCommandClass = (Class<?>) parameterized.getRawType();
+            } else {
+                handlerCommandClass = (Class<?>) handlerCommand;
+            }
+
+            return handlerCommandClass.isAssignableFrom(otherClass);
         }
     }
 

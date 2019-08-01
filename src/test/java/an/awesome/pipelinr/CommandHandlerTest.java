@@ -10,9 +10,37 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CommandHandlerTest {
 
+    @Test
+    void resolvesHandlersWithAGenericCommandType() {
+        Pipeline pipeline = new Pipelinr(() -> Stream.of(new HandlerWithAGenericCommandType()));
+
+        String results = pipeline.send(new Foo<>(new Bar()));
+        assertThat(results).isEqualTo("Bar");
+    }
+
+    class Bar implements Command<String> {
+
+    }
+
+    class Foo<C extends Command<R>, R> implements Command<R> {
+        C wrappee;
+        Foo(C wrappee) {
+            this.wrappee = wrappee;
+        }
+    }
+
+    class HandlerWithAGenericCommandType<C extends Command<R>, R> implements Command.Handler<Foo<C, R>, R> {
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public R handle(Foo command) {
+            return (R) command.wrappee.getClass().getSimpleName();
+        }
+    }
+
 
     @Test
-    public void handlesCommandsThatAreSubtypesOfAGenericArgument() {
+    void handlesCommandsThatAreSubtypesOfAGenericArgument() {
         // given
         Ping.Handler pingHandler = new Ping.Handler();
         NotAPing.Handler notAPingHandler = new NotAPing.Handler();
