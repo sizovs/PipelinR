@@ -36,7 +36,7 @@ Maven:
 <dependency>
   <groupId>an.awesome</groupId>
   <artifactId>pipelinr</artifactId>
-  <version>0.2</version>
+  <version>0.3</version>
 </dependency>
 
 <repositories>
@@ -56,7 +56,7 @@ repositories {
 }
 
 dependencies {
-    compile 'an.awesome:pipelinr:+'
+    compile 'an.awesome:pipelinr:1.3'
 }
 ```
 
