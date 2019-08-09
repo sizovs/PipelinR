@@ -56,7 +56,7 @@ repositories {
 }
 
 dependencies {
-    compile 'an.awesome:pipelinr:1.3'
+    compile 'an.awesome:pipelinr:0.3'
 }
 ```
 
