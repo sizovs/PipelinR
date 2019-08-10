@@ -238,8 +238,6 @@ class Application {
 
 ```
 
-You can check fully working Spring Boot demo app [here](https://github.com/sizovs/PipelinR-demo).
-
 ## Async
 
 PipelinR works well in async or reactive applications. For example, commands can return `CompletableFuture`:
