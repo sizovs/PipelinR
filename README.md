@@ -14,6 +14,8 @@
 
 PipelinR has been battle-proven on production, as a service layer in some cool FinTech apps. PipelinR has helped teams switch from a giant service classes handling all use cases to small handlers following single responsibility principle.
 
+💡 Join [Effective Java Software Design](https://devchampions.com/training/java) course to learn more about building good Java enterprise applications.
+
 ## Table of contents
 - [How to use](#how-to-use)
 - [Commands](#commands)
@@ -36,7 +38,7 @@ Maven:
 <dependency>
   <groupId>an.awesome</groupId>
   <artifactId>pipelinr</artifactId>
-  <version>0.3</version>
+  <version>0.4</version>
 </dependency>
 
 <repositories>
@@ -56,7 +58,7 @@ repositories {
 }
 
 dependencies {
-    compile 'an.awesome:pipelinr:0.3'
+    compile 'an.awesome:pipelinr:0.4'
 }
 ```
 
@@ -64,8 +66,21 @@ Java version required: 1.8+.
 
 ## Commands
 
-**Commands** encapsulate all information needed to perform an action at a later time. You create a command by implementing `Command<R>` interface, where `R` is a return type. If a command has nothing to return, use a built-in `Voidy` return type: 
+**Commands** encapsulate all information needed to perform an action at a later time. You create a command by implementing `Command<R>` interface, where `R` is a command's return type: 
      
+```java
+class Ping implements Command<String> {
+
+    public final String host;
+    
+    public Ping(String host) {
+        this.host = host;
+    }
+}
+```
+
+If a command has nothing to return, you can use a built-in `Voidy` return type:   
+
 ```java
 class Ping implements Command<Voidy> {
 
@@ -75,53 +90,21 @@ class Ping implements Command<Voidy> {
         this.host = host;
     }
 }
-```   
+```
    
 ## Handlers    
    
-**Handlers** encapsulate command handling logic. You create a handler by implementing `Command.Handler<C, R>` interface, where `C` is a command type and `R` is a return type:
+For every command you must define a **Handler**, that knows how to handle the command. You create a handler by implementing `Command.Handler<C, R>` interface, where `C` is a command type and `R` is a return type. Handler's return type must match command's return type.
 
 ```java
-class PingHandler implements Command.Handler<Ping, Voidy> {
+class PingHandler implements Command.Handler<Ping, String> {
 
     @Override
     public String handle(Ping command) {
         String host = command.host;
         // ... ping logic here ...
-        return new Voidy();
+        return "OK";
     }
-}
-```
-
-A command must have a single matching handler. By default, PipelinR finds a matching handler by looking at the first generic parameter. For `PingHandler` it is `Ping` command:
-
-```java
-class PingHandler implements Command.Handler<Ping, Voidy> {
-    // ...
-}
-```
-
-`PingHandler` will handle `Ping` command, as well as commands that extend `Ping`.
-
-You can override the default matching behavior. By overriding `matches` method, you can select a matching handler at runtime, depending on a condition:
-
-```java
-class LocalhostPingHandler implements Command.Handler<Ping, Voidy> {
-
-    @Override
-    public boolean matches(Ping command) {
-        return command.host.equals("localhost");
-    }
-}
-```
-
-```java
-class RemotePingHandler implements Command.Handler<Ping, Voidy> {
-    
-    @Override
-    public boolean matches(Ping command) {
-        return !command.host.equals("localhost");
-    } 
 }
 ```
 
@@ -140,6 +123,12 @@ Send a command for handling:
 ```java
 pipeline.send(new Ping("localhost"));
 ```  
+
+since v0.4, you can execute commands more naturally:
+
+```java
+new Ping("localhost").execute(pipeline);
+```
 
 `Pipelinr` can receive an optional, **ordered list** of custom pipeline steps. Every command will go through the pipeline steps before being handled. Use steps when you want to add extra behavior to command handlers, such as logging, transactions or metrics. 
 
@@ -178,6 +167,29 @@ Pipeline pipeline = new Pipelinr(
     () -> Stream.of(new LocalhostPingHandler(), new RemotePingHandler()),
     () -> Stream.of(new LogInputAndOutput(), new WrapInATransaction())
 );
+```
+
+By default, command handlers are being resolved using generics. By overriding command handler's `matches` method, you can dynamically select a matching handler:
+
+```java
+class LocalhostPingHandler implements Command.Handler<Ping, String> {
+
+    @Override
+    public boolean matches(Ping command) {
+        return command.host.equals("localhost");
+    }
+
+}
+```
+
+```java
+class RemotePingHandler implements Command.Handler<Ping, String> {
+    
+    @Override
+    public boolean matches(Ping command) {
+        return !command.host.equals("localhost");
+    } 
+}
 ```
 
 ## Spring Example
@@ -231,8 +243,8 @@ class Application {
     Pipeline pipeline;
 
     public void run() {
-        String response = pipeline.send(new Ping());
-        System.out.println(response); // prints OK        
+        String response = new Ping("localhost").execute(pipeline);
+        System.out.println(response); 
     }
 }
 
@@ -240,7 +252,7 @@ class Application {
 
 ## Async
 
-PipelinR works well in async or reactive applications. For example, commands can return `CompletableFuture`:
+PipelinR works well in async or reactive applications. For example, a command can return `CompletableFuture`:
 
 ```java
 class AsyncPing implements Command<CompletableFuture<String>> {
@@ -259,11 +271,11 @@ class AsyncPing implements Command<CompletableFuture<String>> {
 Sending `AsyncPing` to the pipeline returns `CompletableFuture`:
 
 ```java
-CompletableFuture<String> okInFuture = pipeline.send(new Ping())
+CompletableFuture<String> okInFuture = new Ping().execute(pipeline);
 ```
 
 ## CQRS
-For CQRS applications you may want to have different pipelines – one for queries, other for commands. `RoutingPipeline` has got you covered. `RoutingPipeline` is a pipeline that can route commands to different pipelines, depending on a condition:
+For CQRS applications you may want to have different pipelines – one for queries, another for commands. `RoutingPipeline` has got you covered. `RoutingPipeline` is a pipeline that can route commands to different pipelines, depending on a condition:
 
 ```java
 interface Cmd<R> extends Command<R> {

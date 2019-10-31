@@ -6,6 +6,10 @@ import java.lang.reflect.Type;
 
 public interface Command<R> {
 
+    default R execute(Pipeline pipeline) {
+        return pipeline.send(this);
+    }
+
     interface Handler<C extends Command<R>, R> {
 
         R handle(C command);
@@ -21,7 +25,7 @@ public interface Command<R> {
 
         private final Class<?> aClass;
 
-        public CommandTypeInAGeneric(Class<?> aClass) {
+        CommandTypeInAGeneric(Class<?> aClass) {
             this.aClass = aClass;
         }
 
