@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -23,7 +24,7 @@ public class Async implements NotificationHandlingStrategy {
 
   @Override
   public void handle(List<Runnable> runnableNotifications) {
-    Collection<Throwable> exceptions = new ArrayList<>();
+    Collection<Throwable> exceptions = new CopyOnWriteArrayList<>();
     CompletableFuture.runAsync(() -> {
       runnableNotifications.forEach(it -> {
         try {

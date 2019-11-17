@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
  *
  * Returns when any thread (handler) is finished.
  *
- * In case of any exception(s), they are captured in an AggregateException.
+ * All exceptions that happened before returning are captured in an AggregateException.
  */
 public class ParallelWhenAny implements NotificationHandlingStrategy {
 
@@ -24,7 +25,7 @@ public class ParallelWhenAny implements NotificationHandlingStrategy {
 
   @Override
   public void handle(List<Runnable> runnableNotifications) {
-    Collection<Throwable> exceptions = new ArrayList<>();
+    Collection<Throwable> exceptions = new CopyOnWriteArrayList<>();
     List<CompletableFuture<Void>> futures = runnableNotifications
             .stream()
             .map(runnable -> CompletableFuture.runAsync(runnable, threadPool).exceptionally(throwable -> {
