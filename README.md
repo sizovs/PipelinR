@@ -38,7 +38,7 @@ Maven:
 <dependency>
   <groupId>an.awesome</groupId>
   <artifactId>pipelinr</artifactId>
-  <version>0.4</version>
+  <version>0.5</version>
 </dependency>
 
 <repositories>
@@ -58,7 +58,7 @@ repositories {
 }
 
 dependencies {
-    compile 'an.awesome:pipelinr:0.4'
+    compile 'an.awesome:pipelinr:0.5'
 }
 ```
 
@@ -195,7 +195,7 @@ class NonLocalhostPong implements Command.Handler<Ping, String> {
 
 ## Notifications
 
-PipelinR supports Notifications, dispatched to multiple handlers.
+Since version `0.5`, PipelinR supports Notifications, dispatched to multiple handlers.
 
 For notifications, first create your notification message:
 
