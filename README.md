@@ -230,6 +230,14 @@ Finally, send notification to the pipeline:
 new Ping().send(pipeline);
 ```
 
+💡 Remember to provide notification handlers to PipelinR:
+```java
+new Pipelinr()
+  .with(
+    () -> Stream.of(new Pong1(), new Pong2())
+  )
+```
+
 ### Notification middlewares
 
 Notifications, like commands, support middlewares. Notification middlewares will run before every notification handler:
@@ -279,7 +287,7 @@ Start by configuring a `Pipeline`. Create an instance of `Pipelinr` and inject a
 class PipelinrConfiguration {
 
     @Bean
-    Pipeline pipeline(ObjectProvider<Command.Handler> commandHandlers, ObjectProvider<Middleware> middlewares) {
+    Pipeline pipeline(ObjectProvider<Command.Handler> commandHandlers, ObjectProvider<Command.Middleware> middlewares) {
         return new Pipelinr()
           .with(commandHandlers::stream)
           .with(middlewares::orderedStream);
