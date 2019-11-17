@@ -1,7 +1,6 @@
 package an.awesome.pipelinr;
 
 import an.awesome.pipelinr.PipelinrTest.Ping.*;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -21,14 +20,54 @@ class PipelinrTest {
         HandlerThatExtendsAbstractClass handlerThatExtendsAbstractClass = new HandlerThatExtendsAbstractClass();
 
         // and
-        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(handlerThatExtendsAbstractClass));
+        Pipelinr pipelinr = new Pipelinr().with(() -> Stream.of(handlerThatExtendsAbstractClass));
 
         // when
         pipelinr.send(new Ping("hi"));
 
         // then:
-        Assertions.assertThat(handlerThatExtendsAbstractClass.receivedPings).containsOnly(new Ping("hi"));
+        assertThat(handlerThatExtendsAbstractClass.receivedPings).containsOnly(new Ping("hi"));
     }
+
+    @Test
+    void executesCommandMiddlewaresInOrder() {
+        // given
+        List<String> invokedMiddlewareIds = new ArrayList<>();
+
+        // and
+        class IdentifiableMiddleware implements Command.Middleware {
+            private final String id;
+            private IdentifiableMiddleware(String id) {
+                this.id = id;
+            }
+            @Override
+            public <R, C extends Command<R>> R invoke(C command, Next<R> next) {
+                invokedMiddlewareIds.add(id);
+                return next.invoke();
+            }
+        }
+
+        // and
+        Command.Middleware foo = new IdentifiableMiddleware("foo");
+
+        // and
+        Command.Middleware bar = new IdentifiableMiddleware("bar");
+
+        // and
+        Command.Middleware baz = new IdentifiableMiddleware("baz");
+
+        // and
+        Pipelinr pipelinr = new Pipelinr()
+                .with(() -> Stream.of(new Pong2()))
+                .with(() -> Stream.of(foo, bar, baz));
+
+        // when
+        new Ping().execute(pipelinr);
+
+        // then
+        assertThat(invokedMiddlewareIds).containsExactly("foo", "bar", "baz");
+    }
+
 
     @Test
     void executesPipelineStepsInOrder() {
@@ -45,7 +84,9 @@ class PipelinrTest {
         PipelineStep third = new UniqueStep(3, invokedStepNumbers::add);
 
         // and
-        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(new Foo()), () -> Stream.of(first, second, third));
+        Pipelinr pipelinr = new Pipelinr()
+                .with(() -> Stream.of(new Pong2()))
+                .with(() -> Stream.of(first, second, third));
 
         // when
         pipelinr.send(new Ping());
@@ -58,10 +99,10 @@ class PipelinrTest {
     void supportsCustomHandlerMatching() {
         // given
         Hi hi = new Hi();
-        Bye bye = new Bye();
+        PingSaver pingSaver = new PingSaver();
 
         // and
-        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(hi, bye));
+        Pipelinr pipelinr = new Pipelinr().with(() -> Stream.of(hi, pingSaver));
 
         // when
         pipelinr.send(new Ping("hi"));
@@ -70,15 +111,15 @@ class PipelinrTest {
         pipelinr.send(new Ping("bye"));
 
         // then:
-        Assertions.assertThat(hi.receivedPings).containsOnly(new Ping("hi"));
-        Assertions.assertThat(bye.receivedPings).containsOnly(new Ping("bye"));
+        assertThat(hi.receivedPings).containsOnly(new Ping("hi"));
+        assertThat(pingSaver.receivedPings).containsOnly(new Ping("bye"));
 
     }
 
     @Test
     void throwsIfSentCommandHasNoMatchingHandler() {
         // given
-        Pipelinr pipelinr = new Pipelinr(Stream::empty);
+        Pipelinr pipelinr = new Pipelinr();
 
         // when
         Throwable e = assertThrows(CommandHandlerNotFoundException.class, () -> {
@@ -92,7 +133,7 @@ class PipelinrTest {
     @Test
     void throwsIfSentCommandHasMultipleHandlers() {
         // given
-        Pipelinr pipelinr = new Pipelinr(() -> Stream.of(new Bar(), new Foo()));
+        Pipelinr pipelinr = new Pipelinr().with(() -> Stream.of(new Pong1(), new Pong2()));
 
         // when
         Throwable e = assertThrows(CommandHasMultipleHandlersException.class, () -> {
@@ -100,15 +141,17 @@ class PipelinrTest {
         });
 
         // then
-        assertThat(e).hasMessage("Command Ping must have a single matching handler, but found 2 (Bar, Foo)");
+        assertThat(e).hasMessage("Command Ping must have a single matching handler, but found 2 (Pong1, Pong2)");
     }
+
+
 
     static class UniqueStep implements PipelineStep {
 
         private final Integer no;
         private final Consumer<Integer> noConsumer;
 
-        public UniqueStep(Integer no, Consumer<Integer> noConsumer) {
+        UniqueStep(Integer no, Consumer<Integer> noConsumer) {
             this.no = no;
             this.noConsumer = noConsumer;
         }
@@ -124,11 +167,11 @@ class PipelinrTest {
 
         private final String message;
 
-        public Ping() {
+        Ping() {
             this("");
         }
 
-        public Ping(String message) {
+        Ping(String message) {
             this.message = message;
         }
 
@@ -141,7 +184,7 @@ class PipelinrTest {
             return false;
         }
 
-        static class Bye implements Handler<Ping, Voidy> {
+        static class PingSaver implements Handler<Ping, Voidy> {
 
             Collection<Ping> receivedPings = new ArrayList<>();
 
@@ -173,16 +216,18 @@ class PipelinrTest {
             }
         }
 
-        static class Bar implements Handler<Ping, Voidy> {
+        static class Pong1 implements Handler<Ping, Voidy> {
             @Override
             public Voidy handle(Ping command) {
+                System.out.println("Pong 1");
                 return new Voidy();
             }
         }
 
-        static class Foo implements Handler<Ping, Voidy> {
+        static class Pong2 implements Handler<Ping, Voidy> {
             @Override
             public Voidy handle(Ping command) {
+                System.out.println("Pong 2");
                 return new Voidy();
             }
 

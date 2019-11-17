@@ -14,16 +14,16 @@
 
 PipelinR has been battle-proven on production, as a service layer in some cool FinTech apps. PipelinR has helped teams switch from a giant service classes handling all use cases to small handlers following single responsibility principle.
 
-💡 Join [Effective Java Software Design](https://devchampions.com/training/java) course to learn more about building good Java enterprise applications.
+💡 Join [Effective Java Software Design](https://devchampions.com/training/java) course to learn more about building great Java enterprise applications.
 
 ## Table of contents
 - [How to use](#how-to-use)
 - [Commands](#commands)
 - [Handlers](#handlers)
 - [Pipeline](#pipeline)
+- [Notifications](#notifications)
 - [Spring Example](#spring-example)
 - [Async](#async)
-- [CQRS](#cqrs)
 - [How to contribute](#how-to-contribute)
 - [Alternatives](#alternatives)
 - [Contributors](#contributors)
@@ -66,7 +66,7 @@ Java version required: 1.8+.
 
 ## Commands
 
-**Commands** encapsulate all information needed to perform an action at a later time. You create a command by implementing `Command<R>` interface, where `R` is a command's return type: 
+**Commands** is a request that can return a value. The `Ping` command below returns a string:
      
 ```java
 class Ping implements Command<String> {
@@ -94,28 +94,31 @@ class Ping implements Command<Voidy> {
    
 ## Handlers    
    
-For every command you must define a **Handler**, that knows how to handle the command. You create a handler by implementing `Command.Handler<C, R>` interface, where `C` is a command type and `R` is a return type. Handler's return type must match command's return type.
+For every command you must define a **Handler**, that knows how to handle the command. 
+
+Create a handler by implementing `Command.Handler<C, R>` interface, where `C` is a command type and `R` is a return type. Handler's return type must match command's return type:
 
 ```java
-class PingHandler implements Command.Handler<Ping, String> {
+class Pong implements Command.Handler<Ping, String> {
 
     @Override
     public String handle(Ping command) {
-        String host = command.host;
-        // ... ping logic here ...
-        return "OK";
+        return "Pong from " + command.host;
     }
 }
 ```
 
 ## Pipeline
-A **pipeline** mediates between commands and handlers. You send commands to the pipeline. When the pipeline receives a command, it sends the command through a sequence of pipeline steps and finally invokes the matching command handler. `Pipelinr` is a default implementation of `Pipeline` interface.
+A **pipeline** mediates between commands and handlers. You send commands to the pipeline. When the pipeline receives a command, it sends the command through a sequence of middlewares and finally invokes the matching command handler. `Pipelinr` is a default implementation of `Pipeline` interface.
 
 To construct a `Pipeline`, create an instance of `Pipelinr` and provide a list of command handlers:
   
   
 ```java
-Pipeline pipeline = new Pipelinr(() -> Stream.of(new LocalhostPingHandler(), new RemotePingHandler()));
+Pipeline pipeline = new Pipelinr()
+    .with(
+        () -> Stream.of(new Pong())
+    );
 ```
 
 Send a command for handling:
@@ -130,13 +133,11 @@ since v0.4, you can execute commands more naturally:
 new Ping("localhost").execute(pipeline);
 ```
 
-`Pipelinr` can receive an optional, **ordered list** of custom pipeline steps. Every command will go through the pipeline steps before being handled. Use steps when you want to add extra behavior to command handlers, such as logging, transactions or metrics. 
-
-Pipeline steps must implement `PipelineStep` interface:
+`Pipelinr` can receive an optional, **ordered list** of custom middlewares. Every command will go through the middlewares before being handled. Use middlewares when you want to add extra behavior to command handlers, such as logging, transactions or metrics:
 
 ```java
-// step one (logs a command and a returned result)
-class LogInputAndOutput implements PipelineStep {
+// middleware that logs every command and the result it returns
+class Loggable implements Command.Middleware {
 
     @Override
     public <R, C extends Command<R>> R invoke(C command, Next<R> next) {
@@ -147,8 +148,8 @@ class LogInputAndOutput implements PipelineStep {
     }
 }
 
-// step two (wraps a command handling in a transaction)
-class WrapInATransaction implements PipelineStep {
+// middleware that wraps a command in a transaction
+class Transactional implements Command.Middleware {
 
     @Override
     public <R, C extends Command<R>> R invoke(C command, Next<R> next) {
@@ -163,16 +164,16 @@ class WrapInATransaction implements PipelineStep {
 In the following pipeline, every command and its response will be logged, plus commands will be wrapped in a transaction:
 
 ```java
-Pipeline pipeline = new Pipelinr(
-    () -> Stream.of(new LocalhostPingHandler(), new RemotePingHandler()),
-    () -> Stream.of(new LogInputAndOutput(), new WrapInATransaction())
+Pipeline pipeline = new Pipelinr()
+    .with(() -> Stream.of(new Pong())),
+    .with(() -> Stream.of(new Loggable(), new Transactional()))
 );
 ```
 
 By default, command handlers are being resolved using generics. By overriding command handler's `matches` method, you can dynamically select a matching handler:
 
 ```java
-class LocalhostPingHandler implements Command.Handler<Ping, String> {
+class LocalhostPong implements Command.Handler<Ping, String> {
 
     @Override
     public boolean matches(Ping command) {
@@ -183,7 +184,7 @@ class LocalhostPingHandler implements Command.Handler<Ping, String> {
 ```
 
 ```java
-class RemotePingHandler implements Command.Handler<Ping, String> {
+class NonLocalhostPong implements Command.Handler<Ping, String> {
     
     @Override
     public boolean matches(Ping command) {
@@ -192,19 +193,96 @@ class RemotePingHandler implements Command.Handler<Ping, String> {
 }
 ```
 
+## Notifications
+
+PipelinR supports Notifications, dispatched to multiple handlers.
+
+For notifications, first create your notification message:
+
+```java
+class Ping implements Notification {
+}
+```
+
+Next, create zero or more handlers for your notification:
+
+```java
+public class Pong1 implements Notification.Handler<Ping> {
+
+    @Override
+    public void handle(Ping notification) {
+      System.out.printn("Pong 1");
+    }
+}
+
+public class Pong2 implements Notification.Handler<Ping> {
+
+    @Override
+    public void handle(Ping notification) {
+      System.out.printn("Pong 2");
+    }
+}
+```
+
+Finally, send notification to the pipeline:
+
+```java
+new Ping().send(pipeline);
+```
+
+### Notification middlewares
+
+Notifications, like commands, support middlewares. Notification middlewares will run before every notification handler:
+
+```java
+class Transactional implements Notification.Middleware {
+
+    @Override
+    public <N extends Notification> void invoke(N notification, Next next) {
+        // start tx
+        next.invoke();
+        // stop tx
+    }
+}
+
+new Pipelinr().with(() -> Stream.of(new Transactional()))
+```
+
+### Notification handling strategies
+The default implementation loops through the notification handlers and awaits each one. This ensures each handler is run after one another.
+
+Depending on your use-case for sending notifications, you might need a different strategy for handling the notifications, such running handlers in parallel.
+
+PipelinR supports the following strategies:
+* `an.awesome.pipelinr.StopOnException` (default)
+* `an.awesome.pipelinr.ContinueOnException`
+* `an.awesome.pipelinr.Async`
+* `an.awesome.pipelinr.ParallelNoWait`
+* `an.awesome.pipelinr.ParallelWhenAny`
+* `an.awesome.pipelinr.ParallelWhenAll`
+
+See each class' JavaDocs for the details.
+
+You can override default strategy via:
+```java
+new Pipelinr().with(new ContinueOnException());
+```
+
 ## Spring Example
 
 PipelinR works well with Spring and Spring Boot. 
 
-Start by configuring a `Pipeline`. Create an instance of `Pipelinr` and inject all command handlers and **ordered** pipeline steps via the constructor:
+Start by configuring a `Pipeline`. Create an instance of `Pipelinr` and inject all command handlers and **ordered** middlewares via the constructor:
 
 ```java
 @Configuration
 class PipelinrConfiguration {
 
     @Bean
-    Pipeline pipeline(ObjectProvider<Command.Handler> commandHandlers, ObjectProvider<PipelineStep> pipelineSteps) {
-        return new Pipelinr(commandHandlers::stream, pipelineSteps::orderedStream);
+    Pipeline pipeline(ObjectProvider<Command.Handler> commandHandlers, ObjectProvider<Middleware> middlewares) {
+        return new Pipelinr()
+          .with(commandHandlers::stream)
+          .with(middlewares::orderedStream);
     }
 }
 ```
@@ -213,23 +291,23 @@ Define Spring-managed command handlers:
 
 ```java
 @Component
-class PingHandler implements Command.Handler<Ping, String> {
+class Pong implements Command.Handler<Ping, String> {
     // ...
 }
 ```
 
-Optionally, define `Order`-ed pipeline steps:
+Optionally, define `Order`-ed middlewares:
  
 ```java
 @Component
 @Order(1)
-class LogInputAndOutput implements PipelineStep {
+class Loggable implements Command.Middleware {
     // ...
 }
 
 @Component
 @Order(2)
-class WrapInATransaction implements PipelineStep {
+class Transactional implements Command.Middleware {
     // ...
 }
 ```
@@ -272,25 +350,6 @@ Sending `AsyncPing` to the pipeline returns `CompletableFuture`:
 
 ```java
 CompletableFuture<String> okInFuture = new Ping().execute(pipeline);
-```
-
-## CQRS
-For CQRS applications you may want to have different pipelines – one for queries, another for commands. `RoutingPipeline` has got you covered. `RoutingPipeline` is a pipeline that can route commands to different pipelines, depending on a condition:
-
-```java
-interface Cmd<R> extends Command<R> {
-}
-
-interface Query<R> extends Command<R> {
-}
-
-Pipeline queriesPipeline = ...  // build a Pipelinr for queries
-Pipeline commandsPipeline = ... // build a Pipelinr for commands
-
-Pipeline pipeline = new RoutingPipeline(
-        new Route(command -> command instanceof Query, queriesPipeline),
-        new Route(command -> command instanceof Cmd, commandsPipeline)
-);
 ```
  
 

@@ -1,8 +1,7 @@
 package an.awesome.pipelinr;
 
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.util.stream.Stream;
 
 public interface Command<R> {
 
@@ -17,47 +16,25 @@ public interface Command<R> {
         default boolean matches(C command) {
             Class handlerType = getClass();
             Class commandType = command.getClass();
-            return new CommandTypeInAGeneric(handlerType).isAssignableFrom(commandType);
+            return new FirstGenericArgOf(handlerType).isAssignableFrom(commandType);
         }
     }
 
-    class CommandTypeInAGeneric {
-
-        private final Class<?> aClass;
-
-        CommandTypeInAGeneric(Class<?> aClass) {
-            this.aClass = aClass;
-        }
-
-        boolean isAssignableFrom(Class<?> otherClass) {
-            Type[] interfaces = aClass.getGenericInterfaces();
-            Type genericSuperclass = aClass.getGenericSuperclass();
-
-            ParameterizedType type;
-            if (interfaces.length > 0) {
-                type = (ParameterizedType) interfaces[0];
-            } else {
-                type = (ParameterizedType) genericSuperclass;
-            }
-
-            Type handlerCommand = type.getActualTypeArguments()[0];
-            Class<?> handlerCommandClass;
-
-            if (handlerCommand instanceof ParameterizedType) {
-                ParameterizedType parameterized = (ParameterizedType) handlerCommand;
-                handlerCommandClass = (Class<?>) parameterized.getRawType();
-            } else {
-                handlerCommandClass = (Class<?>) handlerCommand;
-            }
-
-            return handlerCommandClass.isAssignableFrom(otherClass);
-        }
+    @FunctionalInterface
+    interface Middlewares {
+        Stream<Middleware> supply();
     }
 
+    @FunctionalInterface
+    interface Middleware {
+        <R, C extends Command<R>> R invoke(C command, Next<R> next);
+
+        interface Next<T> {
+            T invoke();
+        }
+    }
 
     interface Router {
-
         <C extends Command<R>, R> Handler<C, R> route(C command);
-
     }
 }
