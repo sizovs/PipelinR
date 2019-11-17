@@ -138,14 +138,14 @@ class PipelinrNotificationsTest {
   }
 
   @Test
-  void supportsParallelWhenAnyStrategy() {
+  void supportsParallelWhenAnyStrategy() throws InterruptedException {
     // given:
     ExecutorService threadPool = Executors.newFixedThreadPool(4);
     Pipeline pipeline = pipelinrWithHandlers(
-            new ThrowingRespublican("Omg", 3000),
-            new ThrowingRespublican("Oh!", 3000),
+            new ThrowingRespublican("Omg", 2000),
+            new ThrowingRespublican("Oh!", 2000),
             new ThrowingRespublican("Nah"),
-            new ThrowingRespublican("Boo", 3000)
+            new ThrowingRespublican("Boo", 2000)
     ).with(() -> new ParallelWhenAny(threadPool));
 
     // when:
@@ -154,6 +154,8 @@ class PipelinrNotificationsTest {
     // then:
     assertThat(e).isExactlyInstanceOf(AggregateException.class);
     assertThat(e).hasMessageContaining("1 exception(s)");
+
+    threadPool.awaitTermination(5, TimeUnit.SECONDS);
     assertThat(timesHandled).hasValue(4);
     assertThat(threads).hasSize(4);
     assertThat(threads).doesNotContain(currentThread());
