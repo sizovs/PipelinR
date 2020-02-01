@@ -341,12 +341,12 @@ Define notification handlers and annotate them with `@Component` annotation:
 
 ```java
 @Component
-public class Pong1 implements Notification.Handler<Ping> {
+class Pong1 implements Notification.Handler<Ping> {
     // ...
 }
 
 @Component
-public class Pong2 implements Notification.Handler<Ping> {
+class Pong2 implements Notification.Handler<Ping> {
     // ...
 }
 ```
