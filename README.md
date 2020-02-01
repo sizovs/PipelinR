@@ -287,22 +287,31 @@ Start by configuring a `Pipeline`. Create an instance of `Pipelinr` and inject a
 class PipelinrConfiguration {
 
     @Bean
-    Pipeline pipeline(ObjectProvider<Command.Handler> commandHandlers, ObjectProvider<Command.Middleware> middlewares) {
+    Pipeline pipeline(ObjectProvider<Command.Handler> commandHandlers, ObjectProvider<Notification.Handler> notificationHandlers, ObjectProvider<Command.Middleware> middlewares) {
         return new Pipelinr()
           .with(commandHandlers::stream)
+          .with(notificationHandlers::stream)
           .with(middlewares::orderedStream);
     }
 }
 ```
 
-Define Spring-managed command handlers:
+Define a command:
+
+```java
+class Wave implements Command<String> {
+}
+```
+
+Define a handler and annotate it with `@Component` annotation:
 
 ```java
 @Component
-class Pong implements Command.Handler<Ping, String> {
+class WaveBack implements Command.Handler<Wave, String> {
     // ...
 }
 ```
+
 
 Optionally, define `Order`-ed middlewares:
  
@@ -320,7 +329,31 @@ class Transactional implements Command.Middleware {
 }
 ```
 
-Inject `Pipeline` into your application, and start sending commands:
+To use notifications, define a notification:
+
+```java
+@Component
+class Ping implements Notification {
+}
+```
+
+Define notification handlers and annotate them with `@Component` annotation:
+
+```java
+@Component
+public class Pong1 implements Notification.Handler<Ping> {
+    // ...
+}
+
+@Component
+public class Pong2 implements Notification.Handler<Ping> {
+    // ...
+}
+```
+
+> Remember that notifications, like commands, also support [Middlewares](#notification-middlewares).
+
+We're ready to go! Inject `Pipeline` into your application, and start sending commands or notifications:
 
 ```java
 class Application {
@@ -329,8 +362,13 @@ class Application {
     Pipeline pipeline;
 
     public void run() {
-        String response = new Ping("localhost").execute(pipeline);
+        String response = new Wave().execute(pipeline);
         System.out.println(response); 
+        
+        // ... or
+        
+        new Ping().send(pipeline); // should trigger Pong1 and Pong2 notification handlers
+        
     }
 }
 
