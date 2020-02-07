@@ -332,7 +332,6 @@ class Transactional implements Command.Middleware {
 To use notifications, define a notification:
 
 ```java
-@Component
 class Ping implements Notification {
 }
 ```
