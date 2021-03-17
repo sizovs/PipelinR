@@ -1,17 +1,17 @@
 buildscript {
     repositories {
-        jcenter()
         mavenLocal()
         mavenCentral()
     }
 }
 
-group = "an.awesome"
+group = "net.sizovs"
 version = project.findProperty("version") ?: "UNSPECIFIED"
 
 plugins {
     java
     jacoco
+    signing
     id("com.diffplug.spotless") version "5.11.0"
     id("maven-publish")
 }
@@ -21,7 +21,6 @@ spotless {
         googleJavaFormat()
     }
 }
-
 
 tasks.register<Jar>("sourcesJar") {
     archiveClassifier.set("sources")
@@ -68,14 +67,22 @@ publishing {
     }
       repositories {
         maven {
-          name = "GitHubPackages"
-          url = uri("https://maven.pkg.github.com/sizovs/pipelinr")
+          name = "Nexus"
+          url = uri("https://s01.oss.sonatype.org/service/local/")
           credentials {
-            username = "sizovs"
-            password = project.findProperty("GITHUB_TOKEN") as String?
+            val nexusPassword: String? by project
+            username = "eduardsi"
+            password = nexusPassword
           }
         }
       }
+}
+
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign(publishing.publications["mavenJava"])
 }
 
 tasks {
@@ -95,7 +102,6 @@ tasks {
 }
 
 repositories {
-    jcenter()
     mavenLocal()
     mavenCentral()
 }

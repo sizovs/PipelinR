@@ -34,29 +34,17 @@ Maven:
 
 ```xml
 <dependency>
-  <groupId>an.awesome</groupId>
+  <groupId>net.sizovs</groupId>
   <artifactId>pipelinr</artifactId>
   <version>0.5</version>
 </dependency>
-
-<repositories>
-  <repository>
-    <id>central</id>
-    <name>bintray</name>
-    <url>https://jcenter.bintray.com</url>
-  </repository>
-</repositories>
 ```
 
 Gradle:
 
 ```groovy
-repositories {
-    jcenter()
-}
-
 dependencies {
-    compile 'an.awesome:pipelinr:0.5'
+    compile 'net.sizovs:pipelinr:0.5'
 }
 ```
 
