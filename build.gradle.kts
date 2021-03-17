@@ -12,7 +12,14 @@ version = project.findProperty("version") ?: "UNSPECIFIED"
 plugins {
     java
     jacoco
+    id("com.diffplug.spotless") version "5.11.0"
     id("maven-publish")
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+    }
 }
 
 

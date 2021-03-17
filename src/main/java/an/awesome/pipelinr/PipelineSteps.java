@@ -6,5 +6,4 @@ import java.util.stream.Stream;
 public interface PipelineSteps {
 
   Stream<PipelineStep> supply();
-
 }

@@ -3,7 +3,7 @@ package an.awesome.pipelinr;
 import java.util.stream.Stream;
 
 public interface Notification {
-  
+
   default void send(Pipeline pipeline) {
     pipeline.send(this);
   }
@@ -31,5 +31,4 @@ public interface Notification {
       void invoke();
     }
   }
-
 }
