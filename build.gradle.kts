@@ -13,7 +13,6 @@ plugins {
     java
     jacoco
     id("maven-publish")
-    id("io.spring.bintray") version "0.11.1"
 }
 
 
@@ -39,13 +38,6 @@ publishing {
                 description.set("A lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your Java awesome app.")
                 url.set(projectUrl)
             }
-//            pom.withXml {
-//                val root = asNode()
-//                val url = "https://github.com/sizovs/pipelinr"
-//                root.appendNode("name", "PipelinR")
-//                root.appendNode("description", "A lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your Java awesome app.")
-//                root.appendNode("url", url)
-//            }
             pom.licenses {
                 license {
                     name.set("MIT License")
@@ -67,6 +59,16 @@ publishing {
             }
         }
     }
+      repositories {
+        maven {
+          name = "GitHubPackages"
+          url = uri("https://maven.pkg.github.com/sizovs/pipelinr")
+          credentials {
+            username = 'sizovs'
+            password = project.findProperty("GITHUB_TOKEN")
+          }
+        }
+      }
 }
 
 tasks {
@@ -84,17 +86,6 @@ tasks {
     }
 
 }
-
-bintray {
-    bintrayUser = project.findProperty("bintrayUser") as String?
-    bintrayKey = project.findProperty("bintrayKey") as String?
-    org = project.findProperty("bintrayUser") as String?
-    repo = "maven"
-    publication = "mavenJava"
-    licenses = listOf("MIT")
-}
-
-
 
 repositories {
     jcenter()
