@@ -64,8 +64,8 @@ publishing {
           name = "GitHubPackages"
           url = uri("https://maven.pkg.github.com/sizovs/pipelinr")
           credentials {
-            username = 'sizovs'
-            password = project.findProperty("GITHUB_TOKEN")
+            username = "sizovs"
+            password = project.findProperty("GITHUB_TOKEN") as String?
           }
         }
       }
