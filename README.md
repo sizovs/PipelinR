@@ -5,7 +5,7 @@
 [![codebeat badge](https://codebeat.co/badges/9f494efc-3c85-45ca-b1a2-52e4f1879f02)](https://codebeat.co/projects/github-com-sizovs-pipelinr-master)
 
 
-[ ![Download](https://api.bintray.com/packages/eduardsi/maven/pipelinr/images/download.svg) ](https://bintray.com/eduardsi/maven/pipelinr/_latestVersion)
+[![Maven Repo](https://maven-badges.herokuapp.com/maven-central/net.sizovs/pipelinr/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/net.sizovs/pipelinr/)
 
 > **PipelinR** is a lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your awesome Java app. 
 
@@ -36,7 +36,7 @@ Maven:
 <dependency>
   <groupId>net.sizovs</groupId>
   <artifactId>pipelinr</artifactId>
-  <version>0.5</version>
+  <version>0.6</version>
 </dependency>
 ```
 
@@ -44,7 +44,7 @@ Gradle:
 
 ```groovy
 dependencies {
-    compile 'net.sizovs:pipelinr:0.5'
+    compile 'net.sizovs:pipelinr:0.6'
 }
 ```
 
