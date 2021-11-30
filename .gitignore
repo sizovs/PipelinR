@@ -1,6 +1,7 @@
 .idea
 *.asc
 *.iml
+*.key
 .gradle
 .classpath
 .project
