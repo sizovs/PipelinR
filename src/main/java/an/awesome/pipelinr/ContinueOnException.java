@@ -24,6 +24,8 @@ public class ContinueOnException implements NotificationHandlingStrategy {
             exceptions.add(e);
           }
         });
-    throw new AggregateException(exceptions);
+    if (exceptions.size() > 0) {
+      throw new AggregateException(exceptions);
+    }
   }
 }

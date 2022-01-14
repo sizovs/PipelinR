@@ -2,6 +2,7 @@ package an.awesome.pipelinr;
 
 import static java.lang.Thread.currentThread;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
@@ -167,24 +168,37 @@ class PipelinrNotificationsTest {
   }
 
   @Test
-  void supportsContinueOnExceptionStrategy() {
-    // given:
-    Pipeline pipeline =
-        pipelinrWithHandlers(
-                new ThrowingRespublican("Omg"),
-                new ThrowingRespublican("Oh!"),
-                new Bush(),
-                new Trump())
-            .with(ContinueOnException::new);
-
+  void supportsContinueOnExceptionStrategyThrowingAggregateException() {
     // when:
     RuntimeException e =
-        assertThrows(RuntimeException.class, () -> new GreetRespublicans().send(pipeline));
+        assertThrows(
+            RuntimeException.class,
+            () ->
+                new GreetRespublicans()
+                    .send(
+                        pipelinrWithHandlers(
+                                new ThrowingRespublican("Omg"),
+                                new ThrowingRespublican("Oh!"),
+                                new Bush(),
+                                new Trump())
+                            .with(ContinueOnException::new)));
 
     // then:
     assertThat(e).isExactlyInstanceOf(AggregateException.class);
     assertThat(e).hasMessageContaining("2");
     assertThat(timesHandled).hasValue(4);
+    assertThat(threads).containsExactly(currentThread());
+  }
+
+  @Test
+  void supportsContinueOnExceptionSuccessfulHandling() {
+    assertDoesNotThrow(
+        () ->
+            new GreetRespublicans()
+                .send(
+                    pipelinrWithHandlers(new Bush(), new Trump()).with(ContinueOnException::new)));
+
+    assertThat(timesHandled).hasValue(2);
     assertThat(threads).containsExactly(currentThread());
   }
 
