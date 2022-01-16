@@ -7,7 +7,6 @@ import an.awesome.pipelinr.PipelinrTest.Ping.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
@@ -70,33 +69,6 @@ class PipelinrTest {
   }
 
   @Test
-  void executesPipelineStepsInOrder() {
-    // given
-    List<Integer> invokedStepNumbers = new ArrayList<>();
-
-    // and
-    PipelineStep first = new UniqueStep(1, invokedStepNumbers::add);
-
-    // and
-    PipelineStep second = new UniqueStep(2, invokedStepNumbers::add);
-
-    // and
-    PipelineStep third = new UniqueStep(3, invokedStepNumbers::add);
-
-    // and
-    Pipelinr pipelinr =
-        new Pipelinr()
-            .with(() -> Stream.of(new Pong2()))
-            .with(() -> Stream.of(first, second, third));
-
-    // when
-    pipelinr.send(new Ping());
-
-    // then
-    assertThat(invokedStepNumbers).containsExactly(1, 2, 3);
-  }
-
-  @Test
   void supportsCustomHandlerMatching() {
     // given
     Hi hi = new Hi();
@@ -149,23 +121,6 @@ class PipelinrTest {
     // then
     assertThat(e)
         .hasMessage("Command Ping must have a single matching handler, but found 2 (Pong1, Pong2)");
-  }
-
-  static class UniqueStep implements PipelineStep {
-
-    private final Integer no;
-    private final Consumer<Integer> noConsumer;
-
-    UniqueStep(Integer no, Consumer<Integer> noConsumer) {
-      this.no = no;
-      this.noConsumer = noConsumer;
-    }
-
-    @Override
-    public <R, C extends Command<R>> R invoke(C command, Next<R> next) {
-      noConsumer.accept(no);
-      return next.invoke();
-    }
   }
 
   static class Ping implements Command<Voidy> {

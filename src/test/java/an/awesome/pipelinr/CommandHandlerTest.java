@@ -11,7 +11,7 @@ class CommandHandlerTest {
 
   @Test
   void resolvesHandlersWithAGenericCommandType() {
-    Pipeline pipeline = new Pipelinr(() -> Stream.of(new HandlerWithAGenericCommandType()));
+    Pipeline pipeline = new Pipelinr().with(() -> Stream.of(new HandlerWithAGenericCommandType()));
 
     String results = pipeline.send(new Foo<>(new Bar()));
     assertThat(results).isEqualTo("Bar");
@@ -42,7 +42,7 @@ class CommandHandlerTest {
     // given
     Ping.Handler pingHandler = new Ping.Handler();
     NotAPing.Handler notAPingHandler = new NotAPing.Handler();
-    Pipeline pipeline = new Pipelinr(() -> Stream.of(pingHandler, notAPingHandler));
+    Pipeline pipeline = new Pipelinr().with(() -> Stream.of(pingHandler, notAPingHandler));
 
     // and
     Ping ping = new Ping();

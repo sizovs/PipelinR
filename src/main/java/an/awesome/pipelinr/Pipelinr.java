@@ -11,8 +11,6 @@ public class Pipelinr implements Pipeline {
 
   private final Command.Router router = new ToFirstMatching();
 
-  private boolean legacyPipelineSteps = false;
-  private StreamSupplier<PipelineStep> steps = Stream::empty;
   private StreamSupplier<Command.Middleware> commandMiddlewares = Stream::empty;
   private StreamSupplier<Command.Handler> commandHandlers = Stream::empty;
   private StreamSupplier<Notification.Middleware> notificationMiddlewares = Stream::empty;
@@ -21,27 +19,6 @@ public class Pipelinr implements Pipeline {
       StopOnException::new;
 
   public Pipelinr() {}
-
-  /**
-   * This constructor is deprecated since v0.5. Use empty constructor and provide extra dependencies
-   * using with* methods.
-   */
-  @Deprecated
-  public Pipelinr(StreamSupplier<Command.Handler> commandHandlers) {
-    this(commandHandlers, Stream::empty);
-  }
-
-  /**
-   * This constructor is deprecated since v0.5. Use empty constructor and provide extra dependencies
-   * using with* methods.
-   */
-  @Deprecated
-  public Pipelinr(
-      StreamSupplier<Command.Handler> commandHandlers, StreamSupplier<PipelineStep> steps) {
-    this.commandHandlers = checkArgument(commandHandlers, "Command handlers must not be null");
-    this.steps = checkArgument(steps, "Steps must not be null");
-    this.legacyPipelineSteps = true;
-  }
 
   public Pipelinr with(CommandHandlers commandHandlers) {
     checkArgument(commandHandlers, "Command handlers must not be null");
@@ -76,31 +53,14 @@ public class Pipelinr implements Pipeline {
     return this;
   }
 
-  /** Pipeline steps are deprecated. Provide Command.Middlewares instead. */
-  @Deprecated
-  public Pipelinr with(PipelineSteps steps) {
-    checkArgument(steps, "Pipeline steps must not be null");
-    this.steps = steps::supply;
-    this.legacyPipelineSteps = true;
-    return this;
-  }
-
   public <R, C extends Command<R>> R send(C command) {
     checkArgument(command, "Command must not be null");
 
-    if (legacyPipelineSteps) {
-      PipelineStep.Next<R> handleCommand = new Handle<>(command);
-      return steps
-          .supplyEx()
-          .foldRight(handleCommand, (step, next) -> () -> step.invoke(command, next))
-          .invoke();
-    } else {
-      Command.Middleware.Next<R> handleCommand = new HandleCommand<>(command);
-      return commandMiddlewares
-          .supplyEx()
-          .foldRight(handleCommand, (step, next) -> () -> step.invoke(command, next))
-          .invoke();
-    }
+    Command.Middleware.Next<R> handleCommand = new HandleCommand<>(command);
+    return commandMiddlewares
+        .supplyEx()
+        .foldRight(handleCommand, (step, next) -> () -> step.invoke(command, next))
+        .invoke();
   }
 
   @SuppressWarnings("unchecked")
@@ -129,21 +89,6 @@ public class Pipelinr implements Pipeline {
     NotificationHandlingStrategy notificationHandlingStrategy =
         notificationHandlingStrategySupplier.get();
     notificationHandlingStrategy.handle(runnableNotifications);
-  }
-
-  private class Handle<R, C extends Command<R>> implements PipelineStep.Next<R> {
-
-    private final C command;
-
-    public Handle(C command) {
-      this.command = command;
-    }
-
-    @Override
-    public R invoke() {
-      Command.Handler<C, R> handler = router.route(command);
-      return handler.handle(command);
-    }
   }
 
   private class HandleCommand<R, C extends Command<R>> implements Command.Middleware.Next<R> {
