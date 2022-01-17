@@ -151,9 +151,8 @@ In the following pipeline, every command and its response will be logged, plus c
 
 ```java
 Pipeline pipeline = new Pipelinr()
-    .with(() -> Stream.of(new Pong())),
-    .with(() -> Stream.of(new Loggable(), new Transactional()))
-);
+    .with(() -> Stream.of(new Pong()))
+    .with(() -> Stream.of(new Loggable(), new Transactional()));
 ```
 
 By default, command handlers are being resolved using generics. By overriding command handler's `matches` method, you can dynamically select a matching handler:
