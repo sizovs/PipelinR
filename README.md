@@ -119,11 +119,40 @@ since v0.4, you can execute commands more naturally:
 new Ping("localhost").execute(pipeline);
 ```
 
-`Pipelinr` can receive an optional, **ordered list** of custom middlewares. Every command will go through the middlewares before being handled. Use middlewares when you want to add extra behavior to command handlers, such as logging, transactions or metrics:
+`Pipelinr` can receive an optional, **ordered list** of custom middlewares. Every command will go through the middlewares before being handled. Use middlewares when you want to add extra behavior to command handlers, such as validation, logging, transactions, or metrics:
+
+```java
+// command validation + middleware
+
+interface CommandValidator<C extends Command<R>, R> {
+    void validate(C command);
+
+    default boolean matches(C command) {
+        TypeToken<C> typeToken = new TypeToken<C>(getClass()) { // available in Guava 12+.
+        };
+
+        return typeToken.isSupertypeOf(command.getClass());
+    }
+}
+
+class ValidationMiddleware implements Command.Middleware {
+   private final ObjectProvider<CommandValidator> validators; // requires Spring 5+. For older versions, use BeanFactory.
+
+   ValidationMiddleware(ObjectProvider<CommandValidator> validators) {
+      this.validators = validators;
+    }
+
+    @Override
+    public <R, C extends Command<R>> R invoke(C command, Next<R> next) {
+        validators.stream().filter(v -> v.matches(command)).findFirst().ifPresent(v -> v.validate(command));
+        return next.invoke();
+    }
+}
+```
 
 ```java
 // middleware that logs every command and the result it returns
-class Loggable implements Command.Middleware {
+class LoggingMiddleware implements Command.Middleware {
 
     @Override
     public <R, C extends Command<R>> R invoke(C command, Next<R> next) {
@@ -135,7 +164,7 @@ class Loggable implements Command.Middleware {
 }
 
 // middleware that wraps a command in a transaction
-class Transactional implements Command.Middleware {
+class TxMiddleware implements Command.Middleware {
 
     @Override
     public <R, C extends Command<R>> R invoke(C command, Next<R> next) {
@@ -147,12 +176,12 @@ class Transactional implements Command.Middleware {
 }
 ```
 
-In the following pipeline, every command and its response will be logged, plus commands will be wrapped in a transaction:
+In the following pipeline, every command and its response will be logged, it will be wrapped in a transaction, then validated:
 
 ```java
 Pipeline pipeline = new Pipelinr()
     .with(() -> Stream.of(new Pong()))
-    .with(() -> Stream.of(new Loggable(), new Transactional()));
+    .with(() -> Stream.of(new LoggingMiddleware(), new TxMiddleware(), new ValidationMiddleware(...)));
 ```
 
 By default, command handlers are being resolved using generics. By overriding command handler's `matches` method, you can dynamically select a matching handler:
