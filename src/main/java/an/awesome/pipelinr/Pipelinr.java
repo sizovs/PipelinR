@@ -65,7 +65,7 @@ public class Pipelinr implements Pipeline {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <N extends Notification> void send(N notification) {
+  public <N extends Notification> void send(N notification, NotificationHandlingStrategy notificationHandlingStrategy) {
     checkArgument(notification, "Notification must not be null");
 
     List<Runnable> runnableNotifications =
@@ -86,9 +86,12 @@ public class Pipelinr implements Pipeline {
                 })
             .collect(toList());
 
-    NotificationHandlingStrategy notificationHandlingStrategy =
-        notificationHandlingStrategySupplier.get();
     notificationHandlingStrategy.handle(runnableNotifications);
+  }
+
+  @Override
+  public <N extends Notification> void send(N notification) {
+    send(notification, notificationHandlingStrategySupplier.get());
   }
 
   private class HandleCommand<R, C extends Command<R>> implements Command.Middleware.Next<R> {
