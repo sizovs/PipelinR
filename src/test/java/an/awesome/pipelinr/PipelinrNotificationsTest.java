@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -93,6 +94,63 @@ class PipelinrNotificationsTest {
     assertThat(timesHandled).hasValue(4);
     assertThat(threads).hasSize(1);
     assertThat(threads).doesNotContain(currentThread());
+  }
+
+  @Test
+  void supportsCustomHandlerMatching() {
+    Collection<String> notificationTexts = new CopyOnWriteArrayList<>();
+
+    class TextNotification implements Notification {
+      private final String text;
+
+      TextNotification(String text) {
+        this.text = text;
+      }
+    }
+    class HandlerForFoo implements Notification.Handler<TextNotification> {
+      @Override
+      public void handle(TextNotification notification) {
+        notificationTexts.add(notification.text);
+      }
+
+      @Override
+      public boolean matches(TextNotification notification) {
+        return notification.text.equals("foo");
+      }
+    }
+
+    class HandlerForBar implements Notification.Handler<TextNotification> {
+      @Override
+      public void handle(TextNotification notification) {
+        notificationTexts.add(notification.text);
+      }
+
+      @Override
+      public boolean matches(TextNotification notification) {
+        return notification.text.equals("bar");
+      }
+    }
+
+    class HandlerForAll implements Notification.Handler<TextNotification> {
+      @Override
+      public void handle(TextNotification notification) {
+        notificationTexts.add(notification.text);
+      }
+    }
+
+    new Pipelinr()
+        .with(() -> Stream.of(new HandlerForFoo(), new HandlerForBar(), new HandlerForAll()))
+        .send(new TextNotification("foo"));
+    assertThat(notificationTexts).containsOnly("foo");
+    assertThat(notificationTexts).hasSize(2);
+
+    notificationTexts.clear();
+
+    new Pipelinr()
+        .with(() -> Stream.of(new HandlerForFoo(), new HandlerForBar(), new HandlerForAll()))
+        .send(new TextNotification("bar"));
+    assertThat(notificationTexts).containsOnly("bar");
+    assertThat(notificationTexts).hasSize(2);
   }
 
   @Test
