@@ -1,5 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 
 buildscript {
     repositories {
@@ -40,7 +41,9 @@ val projectUrl = "https://github.com/sizovs/pipelinr"
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            from(components["java"])
+            project.extensions.configure<ShadowExtension>() {
+                component(this@create)
+            }
             artifact(tasks["sourcesJar"])
             artifact(tasks["javadocJar"])
             pom {
@@ -96,8 +99,13 @@ tasks.create<ConfigureShadowRelocation>("relocateShadowJar") {
 
 tasks {
     named<Jar>("jar") {
-        archiveClassifier.set("nodeps")
+        enabled = false
     }
+
+    withType<GenerateModuleMetadata> {
+        enabled = false
+    }
+
     named<ShadowJar>("shadowJar") {
         dependsOn("relocateShadowJar")
         archiveClassifier.set("")
