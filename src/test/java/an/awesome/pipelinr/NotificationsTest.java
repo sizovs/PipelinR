@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
-class PipelinrNotificationsTest {
+class NotificationsTest {
 
   private AtomicLong timesHandled = new AtomicLong();
   private Collection<Thread> threads = new HashSet<>();
@@ -78,16 +78,16 @@ class PipelinrNotificationsTest {
     // given:
     ExecutorService threadPool = Executors.newFixedThreadPool(1);
     Pipeline pipeline =
-        pipelinrWithHandlers(
-                new ThrowingRespublican("Omg"),
-                new ThrowingRespublican("Oh!"),
+        pipelineWithHandlers(
+                new ThrowingRepublican("Omg"),
+                new ThrowingRepublican("Oh!"),
                 new Bush(),
                 new Trump())
             .with(() -> new Async(threadPool));
 
     // when:
     RuntimeException e =
-        assertThrows(RuntimeException.class, () -> new GreetRespublicans().send(pipeline));
+        assertThrows(RuntimeException.class, () -> new GreetRepublicans().send(pipeline));
 
     // then:
     assertThat(e).isExactlyInstanceOf(AggregateException.class);
@@ -158,15 +158,15 @@ class PipelinrNotificationsTest {
     // given:
     ExecutorService threadPool = Executors.newFixedThreadPool(4);
     Pipeline pipeline =
-        pipelinrWithHandlers(
-                new ThrowingRespublican("Omg"),
-                new ThrowingRespublican("Oh!"),
+        pipelineWithHandlers(
+                new ThrowingRepublican("Omg"),
+                new ThrowingRepublican("Oh!"),
                 new Bush(),
                 new Trump())
             .with(() -> new ParallelNoWait(threadPool));
 
     // when:
-    new GreetRespublicans().send(pipeline);
+    new GreetRepublicans().send(pipeline);
     threadPool.awaitTermination(3, TimeUnit.SECONDS);
 
     // then:
@@ -180,16 +180,16 @@ class PipelinrNotificationsTest {
     // given:
     ExecutorService threadPool = Executors.newFixedThreadPool(4);
     Pipeline pipeline =
-        pipelinrWithHandlers(
-                new ThrowingRespublican("Omg"),
-                new ThrowingRespublican("Oh!"),
+        pipelineWithHandlers(
+                new ThrowingRepublican("Omg"),
+                new ThrowingRepublican("Oh!"),
                 new Bush(),
                 new Trump())
             .with(() -> new ParallelWhenAll(threadPool));
 
     // when:
     RuntimeException e =
-        assertThrows(RuntimeException.class, () -> new GreetRespublicans().send(pipeline));
+        assertThrows(RuntimeException.class, () -> new GreetRepublicans().send(pipeline));
 
     // then:
     assertThat(e).isExactlyInstanceOf(AggregateException.class);
@@ -204,16 +204,16 @@ class PipelinrNotificationsTest {
     // given:
     ExecutorService threadPool = Executors.newFixedThreadPool(4);
     Pipeline pipeline =
-        pipelinrWithHandlers(
-                new ThrowingRespublican("Omg", 2000),
-                new ThrowingRespublican("Oh!", 2000),
-                new ThrowingRespublican("Nah"),
-                new ThrowingRespublican("Boo", 2000))
+        pipelineWithHandlers(
+                new ThrowingRepublican("Omg", 2000),
+                new ThrowingRepublican("Oh!", 2000),
+                new ThrowingRepublican("Nah"),
+                new ThrowingRepublican("Boo", 2000))
             .with(() -> new ParallelWhenAny(threadPool));
 
     // when:
     RuntimeException e =
-        assertThrows(RuntimeException.class, () -> new GreetRespublicans().send(pipeline));
+        assertThrows(RuntimeException.class, () -> new GreetRepublicans().send(pipeline));
 
     // then:
     assertThat(e).isExactlyInstanceOf(AggregateException.class);
@@ -232,11 +232,11 @@ class PipelinrNotificationsTest {
         assertThrows(
             RuntimeException.class,
             () ->
-                new GreetRespublicans()
+                new GreetRepublicans()
                     .send(
-                        pipelinrWithHandlers(
-                                new ThrowingRespublican("Omg"),
-                                new ThrowingRespublican("Oh!"),
+                        pipelineWithHandlers(
+                                new ThrowingRepublican("Omg"),
+                                new ThrowingRepublican("Oh!"),
                                 new Bush(),
                                 new Trump())
                             .with(ContinueOnException::new)));
@@ -252,9 +252,9 @@ class PipelinrNotificationsTest {
   void supportsContinueOnExceptionSuccessfulHandling() {
     assertDoesNotThrow(
         () ->
-            new GreetRespublicans()
+            new GreetRepublicans()
                 .send(
-                    pipelinrWithHandlers(new Bush(), new Trump()).with(ContinueOnException::new)));
+                    pipelineWithHandlers(new Bush(), new Trump()).with(ContinueOnException::new)));
 
     assertThat(timesHandled).hasValue(2);
     assertThat(threads).containsExactly(currentThread());
@@ -264,15 +264,12 @@ class PipelinrNotificationsTest {
   void stopOnExceptionIsDefaultStrategy() {
     // given:
     Pipeline pipeline =
-        pipelinrWithHandlers(
-            new ThrowingRespublican("Omg"),
-            new ThrowingRespublican("Oh!"),
-            new Bush(),
-            new Trump());
+        pipelineWithHandlers(
+            new ThrowingRepublican("Omg"), new ThrowingRepublican("Oh!"), new Bush(), new Trump());
 
     // when:
     RuntimeException e =
-        assertThrows(RuntimeException.class, () -> new GreetRespublicans().send(pipeline));
+        assertThrows(RuntimeException.class, () -> new GreetRepublicans().send(pipeline));
 
     // then:
     assertThat(timesHandled).hasValue(1);
@@ -281,56 +278,59 @@ class PipelinrNotificationsTest {
   }
 
   @Test
+  void supportsNotificationsWithGenerics() {
+    class GenericNotification<X> implements Notification {}
+
+    class GenericNotificationHandler extends BaseNotificationHandler<GenericNotification<String>> {}
+
+    Pipeline pipeline = new Pipelinr().with(() -> Stream.of(new GenericNotificationHandler()));
+
+    new GenericNotification<>().send(pipeline);
+    assertThat(timesHandled).hasValue(1);
+  }
+
+  @Test
   void sendsNotificationToAllHandlers() {
     // given:
-    Pipeline pipeline = pipelinrWithHandlers(new Bush(), new Trump(), new Hilary());
+    Pipeline pipeline = pipelineWithHandlers(new Bush(), new Trump(), new Hilary());
 
     // when:
-    new GreetRespublicans().send(pipeline);
+    new GreetRepublicans().send(pipeline);
 
     // then:
     assertThat(timesHandled).hasValue(2);
   }
 
-  private Pipelinr pipelinrWithHandlers(Notification.Handler... handlers) {
+  private Pipelinr pipelineWithHandlers(Notification.Handler... handlers) {
     return new Pipelinr().with(() -> Stream.of(handlers));
   }
 
   static class GreetDemocrats implements Notification {}
 
-  static class GreetRespublicans implements Notification {}
+  static class GreetRepublicans implements Notification {}
 
-  class Hilary extends BaseNotificationHandler<GreetDemocrats> {
-    @Override
-    public void handleNow(GreetDemocrats notification) {}
-  }
+  class Hilary extends BaseNotificationHandler<GreetDemocrats> {}
 
-  class Bush extends BaseNotificationHandler<GreetRespublicans> {
-    @Override
-    public void handleNow(GreetRespublicans notification) {}
-  }
+  class Bush extends BaseNotificationHandler<GreetRepublicans> {}
 
-  class Trump extends BaseNotificationHandler<GreetRespublicans> {
-    @Override
-    public void handleNow(GreetRespublicans notification) {}
-  }
+  class Trump extends BaseNotificationHandler<GreetRepublicans> {}
 
-  class ThrowingRespublican extends BaseNotificationHandler<GreetRespublicans> {
+  class ThrowingRepublican extends BaseNotificationHandler<GreetRepublicans> {
     private final String message;
     private final long sleepMillis;
 
-    ThrowingRespublican(String message) {
+    ThrowingRepublican(String message) {
       this.message = message;
       this.sleepMillis = 0;
     }
 
-    public ThrowingRespublican(String message, long sleepMillis) {
+    public ThrowingRepublican(String message, long sleepMillis) {
       this.message = message;
       this.sleepMillis = sleepMillis;
     }
 
     @Override
-    public void handleNow(GreetRespublicans notification) {
+    public void handleNow(GreetRepublicans notification) {
       try {
         Thread.sleep(sleepMillis);
       } finally {
@@ -343,12 +343,12 @@ class PipelinrNotificationsTest {
       implements Notification.Handler<N> {
 
     @Override
-    public void handle(N notification) {
+    public final void handle(N notification) {
       threads.add(currentThread());
       timesHandled.incrementAndGet();
       handleNow(notification);
     }
 
-    abstract void handleNow(N notification);
+    protected void handleNow(N notification) {}
   }
 }

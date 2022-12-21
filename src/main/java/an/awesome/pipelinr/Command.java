@@ -1,5 +1,6 @@
 package an.awesome.pipelinr;
 
+import com.google.common.reflect.TypeToken;
 import java.util.stream.Stream;
 
 public interface Command<R> {
@@ -13,9 +14,9 @@ public interface Command<R> {
     R handle(C command);
 
     default boolean matches(C command) {
-      Class handlerType = getClass();
-      Class commandType = command.getClass();
-      return new FirstGenericArgOf(handlerType).isAssignableFrom(commandType);
+      TypeToken<C> commandTypeOfAHandler = new TypeToken<C>(getClass()) {};
+      return commandTypeOfAHandler.getRawType().equals(command.getClass())
+          || commandTypeOfAHandler.isSupertypeOf(command.getClass());
     }
   }
 

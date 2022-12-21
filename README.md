@@ -28,7 +28,7 @@ PipelinR has been battle-proven on production, as a service layer in some cool F
 
 ## How to use
 
-PipelinR has no dependencies. All you need is a single 15KB library:
+PipelinR has no dependencies. All you need is a single library:
 
 Maven:
 

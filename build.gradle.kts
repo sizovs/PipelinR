@@ -1,3 +1,6 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 buildscript {
     repositories {
         mavenLocal()
@@ -12,7 +15,8 @@ plugins {
     java
     jacoco
     signing
-    id("com.diffplug.spotless") version "5.11.0"
+    id("com.diffplug.spotless") version "6.12.0"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
     id("maven-publish")
 }
 
@@ -22,12 +26,12 @@ spotless {
     }
 }
 
-tasks.register<Jar>("sourcesJar") {
+tasks.register<ShadowJar>("sourcesJar") {
     archiveClassifier.set("sources")
     from(sourceSets.main.get().allJava)
 }
 
-tasks.register<Jar>("javadocJar") {
+tasks.register<ShadowJar>("javadocJar") {
     archiveClassifier.set("javadoc")
     from(tasks.javadoc.get().destinationDir)
 }
@@ -65,17 +69,17 @@ publishing {
             }
         }
     }
-      repositories {
+    repositories {
         maven {
-          name = "Nexus"
-          url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-          credentials {
-            val nexusPassword: String? by project
-            username = "eduardsi"
-            password = nexusPassword
-          }
+            name = "Nexus"
+            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials {
+                val nexusPassword: String? by project
+                username = "eduardsi"
+                password = nexusPassword
+            }
         }
-      }
+    }
 }
 
 signing {
@@ -85,11 +89,24 @@ signing {
     sign(publishing.publications["mavenJava"])
 }
 
+tasks.create<ConfigureShadowRelocation>("relocateShadowJar") {
+    target = tasks["shadowJar"] as ShadowJar
+    prefix = "an.awesome.pipelinr.repack"
+}
+
 tasks {
+    named<Jar>("jar") {
+        archiveClassifier.set("nodeps")
+    }
+    named<ShadowJar>("shadowJar") {
+        dependsOn("relocateShadowJar")
+        archiveClassifier.set("")
+    }
+
     named<JacocoReport>("jacocoTestReport") {
         reports {
-            xml.isEnabled = true
-            html.isEnabled = false
+            xml.required.set(true)
+            html.required.set(false)
         }
     }
     test {
@@ -113,6 +130,7 @@ java {
 }
 
 dependencies {
+    implementation("com.google.guava:guava:31.1-jre")
     testImplementation("org.junit.jupiter:junit-jupiter:5.4.0")
     testImplementation("org.junit.platform:junit-platform-runner:1.4.0")
     testImplementation("org.assertj:assertj-core:3.11.1")

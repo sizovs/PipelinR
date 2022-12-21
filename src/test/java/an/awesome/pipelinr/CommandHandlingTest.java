@@ -7,34 +7,25 @@ import java.util.Collection;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
-class CommandHandlerTest {
+class CommandHandlingTest {
 
   @Test
-  void resolvesHandlersWithAGenericCommandType() {
-    Pipeline pipeline = new Pipelinr().with(() -> Stream.of(new HandlerWithAGenericCommandType()));
+  void supportsCommandsWithGenerics() {
+    class CommandWithGenerics<G> implements Command<G> {}
 
-    String results = pipeline.send(new Foo<>(new Bar()));
-    assertThat(results).isEqualTo("Bar");
-  }
-
-  class Bar implements Command<String> {}
-
-  class Foo<C extends Command<R>, R> implements Command<R> {
-    C wrappee;
-
-    Foo(C wrappee) {
-      this.wrappee = wrappee;
+    class HandlerForCommandWithGenerics
+        implements Command.Handler<CommandWithGenerics<String>, String> {
+      @SuppressWarnings({"rawtypes"})
+      @Override
+      public String handle(CommandWithGenerics command) {
+        return "HANDLED";
+      }
     }
-  }
 
-  class HandlerWithAGenericCommandType<C extends Command<R>, R>
-      implements Command.Handler<Foo<C, R>, R> {
+    Pipeline pipeline = new Pipelinr().with(() -> Stream.of(new HandlerForCommandWithGenerics()));
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public R handle(Foo command) {
-      return (R) command.wrappee.getClass().getSimpleName();
-    }
+    String results = pipeline.send(new CommandWithGenerics<>());
+    assertThat(results).isEqualTo("HANDLED");
   }
 
   @Test

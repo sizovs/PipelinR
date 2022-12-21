@@ -1,5 +1,6 @@
 package an.awesome.pipelinr;
 
+import com.google.common.reflect.TypeToken;
 import java.util.stream.Stream;
 
 public interface Notification {
@@ -12,9 +13,9 @@ public interface Notification {
     void handle(N notification);
 
     default boolean matches(N notification) {
-      Class handlerType = getClass();
-      Class commandType = notification.getClass();
-      return new FirstGenericArgOf(handlerType).isAssignableFrom(commandType);
+      TypeToken<N> notificationTypeOfAHandler = new TypeToken<N>(getClass()) {};
+      return notificationTypeOfAHandler.getRawType().equals(notification.getClass())
+          || notificationTypeOfAHandler.isSupertypeOf(notification.getClass());
     }
   }
 
