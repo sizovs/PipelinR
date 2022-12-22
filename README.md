@@ -9,10 +9,9 @@
 
 > **PipelinR** is a lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your awesome Java app. 
 
+PipelinR has been battle-proven on production as a service layer for some cool FinTech apps. PipelinR has helped teams switch from giant service classes handling all use cases to small handlers, each following the single responsibility principle. It's similar to a popular [MediatR](https://github.com/jbogard/MediatR) .NET library.
 
-PipelinR has been battle-proven on production, as a service layer in some cool FinTech apps. PipelinR has helped teams switch from a giant service classes handling all use cases to small handlers following single responsibility principle. It's similar to a popular [MediatR](https://github.com/jbogard/MediatR) library for .NET.
-
-💡 Join [Effective Java Software Design](https://devchampions.com/training/java) course to learn more about building great Java enterprise applications.
+💡 Tested and works with plain Java, Spring, Jakarta EE, and Micronaut. 
 
 ## Table of contents
 - [How to use](#how-to-use)
