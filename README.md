@@ -11,7 +11,7 @@
 
 PipelinR has been battle-proven on production as a service layer for some cool FinTech apps. PipelinR has helped teams switch from giant service classes handling all use cases to small handlers, each following the single responsibility principle. It's similar to a popular [MediatR](https://github.com/jbogard/MediatR) .NET library.
 
-💡 Tested and works with plain Java, Spring, Jakarta EE, and Micronaut. 
+⚡ Tested and works with plain Java, Kotlin, Spring, and Jakarta EE.
 
 ## Table of contents
 - [How to use](#how-to-use)
