@@ -419,4 +419,4 @@ Just fork the repo and send us a pull request.
 
 
 ## Contributors
-- [@sizovs](https://github.com/sizovs) as Eduards Sizovs ([Blog](https://sizovs.net)) 
+- Eduards Sizovs: [Blog](https://sizovs.net) ⋅ [Twitter](https://twitter.com/eduardsi) ⋅ [GitHub](https://github.com/sizovs)
