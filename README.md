@@ -275,14 +275,12 @@ The default implementation loops through the notification handlers and awaits ea
 Depending on your use-case for sending notifications, you might need a different strategy for handling the notifications, such running handlers in parallel.
 
 PipelinR supports the following strategies:
-* `an.awesome.pipelinr.StopOnException` (default)
-* `an.awesome.pipelinr.ContinueOnException`
-* `an.awesome.pipelinr.Async`
-* `an.awesome.pipelinr.ParallelNoWait`
-* `an.awesome.pipelinr.ParallelWhenAny`
-* `an.awesome.pipelinr.ParallelWhenAll`
-
-See each class' JavaDocs for the details.
+* `an.awesome.pipelinr.StopOnException` runs each notification handler after one another; returns when all handlers are finished or an exception has been thrown; in case of an exception, any handlers after that will not be run; **this is a default strategy**.
+* `an.awesome.pipelinr.ContinueOnException` runs each notification handler after one another; returns when all handlers are finished; in case of any exception(s), they will be captured in an AggregateException.
+* `an.awesome.pipelinr.Async` runs all notification handlers asynchronously; returns when all handlers are finished; in case of any exception(s), they will be captured in an AggregateException.
+* `an.awesome.pipelinr.ParallelNoWait` runs each notification handler in a thread pool; returns immediately and does not wait for any handlers to finish; cannot capture any exceptions.
+* `an.awesome.pipelinr.ParallelWhenAny` runs each notification handler in a thread pool; returns when any thread (handler) is finished; all exceptions that happened before returning are captured in an AggregateException.
+* `an.awesome.pipelinr.ParallelWhenAll` run each notification handler in a thread pool; returns when all threads (handlers) are finished; in case of any exception(s), they are captured in an AggregateException.
 
 You can override default strategy via:
 ```java
