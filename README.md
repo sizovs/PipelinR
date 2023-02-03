@@ -280,7 +280,7 @@ PipelinR supports the following strategies:
 * `an.awesome.pipelinr.Async` runs all notification handlers asynchronously; returns when all handlers are finished; in case of any exception(s), they will be captured in an AggregateException.
 * `an.awesome.pipelinr.ParallelNoWait` runs each notification handler in a thread pool; returns immediately and does not wait for any handlers to finish; cannot capture any exceptions.
 * `an.awesome.pipelinr.ParallelWhenAny` runs each notification handler in a thread pool; returns when any thread (handler) is finished; all exceptions that happened before returning are captured in an AggregateException.
-* `an.awesome.pipelinr.ParallelWhenAll` run each notification handler in a thread pool; returns when all threads (handlers) are finished; in case of any exception(s), they are captured in an AggregateException.
+* `an.awesome.pipelinr.ParallelWhenAll` runs each notification handler in a thread pool; returns when all threads (handlers) are finished; in case of any exception(s), they are captured in an AggregateException.
 
 You can override default strategy via:
 ```java
