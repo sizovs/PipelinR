@@ -78,8 +78,9 @@ publishing {
             name = "Nexus"
             url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
             credentials {
+                val nexusUser: String? by project
                 val nexusPassword: String? by project
-                username = "eduardsi"
+                username = nexusUser
                 password = nexusPassword
             }
         }
