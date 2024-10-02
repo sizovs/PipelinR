@@ -33,6 +33,7 @@ tasks.register<ShadowJar>("sourcesJar") {
 }
 
 tasks.register<ShadowJar>("javadocJar") {
+    dependsOn("javadoc")
     archiveClassifier.set("javadoc")
     from(tasks.javadoc.get().destinationDir)
 }
