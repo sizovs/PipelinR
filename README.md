@@ -7,7 +7,7 @@
 
 [![Maven Repo](https://maven-badges.herokuapp.com/maven-central/net.sizovs/pipelinr/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/net.sizovs/pipelinr/)
 
-> **PipelinR** is a lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your awesome Java app. 
+> **PipelinR** is a lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your awesome Java app.
 
 PipelinR has been battle-proven on production as a service layer for some cool FinTech apps. PipelinR has helped teams switch from giant service classes handling all use cases to small handlers, each following the single responsibility principle. It's similar to a popular [MediatR](https://github.com/jbogard/MediatR) .NET library.
 
@@ -35,7 +35,7 @@ Maven:
 <dependency>
   <groupId>net.sizovs</groupId>
   <artifactId>pipelinr</artifactId>
-  <version>0.8</version>
+  <version>0.9</version>
 </dependency>
 ```
 
@@ -43,7 +43,7 @@ Gradle:
 
 ```groovy
 dependencies {
-    compile 'net.sizovs:pipelinr:0.8'
+    compile 'net.sizovs:pipelinr:0.9'
 }
 ```
 
@@ -52,34 +52,34 @@ Java version required: 1.8+.
 ## Commands
 
 **Commands** is a request that can return a value. The `Ping` command below returns a string:
-     
+
 ```java
 class Ping implements Command<String> {
 
     public final String host;
-    
+
     public Ping(String host) {
         this.host = host;
     }
 }
 ```
 
-If a command has nothing to return, you can use a built-in `Voidy` return type:   
+If a command has nothing to return, you can use a built-in `Voidy` return type:
 
 ```java
 class Ping implements Command<Voidy> {
 
     public final String host;
-    
+
     public Ping(String host) {
         this.host = host;
     }
 }
 ```
-   
-## Handlers    
-   
-For every command you must define a **Handler**, that knows how to handle the command. 
+
+## Handlers
+
+For every command you must define a **Handler**, that knows how to handle the command.
 
 Create a handler by implementing `Command.Handler<C, R>` interface, where `C` is a command type and `R` is a return type. Handler's return type must match command's return type:
 
@@ -97,8 +97,8 @@ class Pong implements Command.Handler<Ping, String> {
 A **pipeline** mediates between commands and handlers. You send commands to the pipeline. When the pipeline receives a command, it sends the command through a sequence of middlewares and finally invokes the matching command handler. `Pipelinr` is a default implementation of `Pipeline` interface.
 
 To construct a `Pipeline`, create an instance of `Pipelinr` and provide a list of command handlers:
-  
-  
+
+
 ```java
 Pipeline pipeline = new Pipelinr()
     .with(
@@ -107,10 +107,10 @@ Pipeline pipeline = new Pipelinr()
 ```
 
 Send a command for handling:
- 
+
 ```java
 pipeline.send(new Ping("localhost"));
-```  
+```
 
 since v0.4, you can execute commands more naturally:
 
@@ -198,11 +198,11 @@ class LocalhostPong implements Command.Handler<Ping, String> {
 
 ```java
 class NonLocalhostPong implements Command.Handler<Ping, String> {
-    
+
     @Override
     public boolean matches(Ping command) {
         return !command.host.equals("localhost");
-    } 
+    }
 }
 ```
 
@@ -289,7 +289,7 @@ new Pipelinr().with(new ContinueOnException());
 
 ## Spring Example
 
-PipelinR works well with Spring and Spring Boot. 
+PipelinR works well with Spring and Spring Boot.
 
 Start by configuring a `Pipeline`. Create an instance of `Pipelinr` and inject all command handlers and **ordered** middlewares via the constructor:
 
@@ -325,7 +325,7 @@ class WaveBack implements Command.Handler<Wave, String> {
 
 
 Optionally, define `Order`-ed middlewares:
- 
+
 ```java
 @Component
 @Order(1)
@@ -373,12 +373,12 @@ class Application {
 
     public void run() {
         String response = new Wave().execute(pipeline);
-        System.out.println(response); 
-        
+        System.out.println(response);
+
         // ... or
-        
+
         new Ping().send(pipeline); // should trigger Pong1 and Pong2 notification handlers
-        
+
     }
 }
 
@@ -390,7 +390,7 @@ PipelinR works well in async or reactive applications. For example, a command ca
 
 ```java
 class AsyncPing implements Command<CompletableFuture<String>> {
-    
+
     @Component
     static class Handler implements Command.Handler<AsyncPing, CompletableFuture<String>> {
 
@@ -407,7 +407,7 @@ Sending `AsyncPing` to the pipeline returns `CompletableFuture`:
 ```java
 CompletableFuture<String> okInFuture = new Ping().execute(pipeline);
 ```
- 
+
 
 ## How to contribute
 Just fork the repo and send us a pull request.
