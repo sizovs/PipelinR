@@ -19,4 +19,5 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PWD }}
+          ORG_GRADLE_PROJECT_nexusUser: ${{ secrets.NEXUS_USER }}
           ORG_GRADLE_PROJECT_nexusPassword: ${{ secrets.NEXUS_PWD }}
