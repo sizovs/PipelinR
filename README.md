@@ -1,5 +1,6 @@
 # PipelinR
 
+[![libs.tech recommends](https://libs.tech/project/169682577/badge.svg)](https://libs.tech/project/169682577/pipelinr)
 [![Build Status](https://github.com/sizovs/pipelinr/actions/workflows/build.yml/badge.svg)](https://github.com/sizovs/pipelinr/actions/workflows/build.yml)
 [![Test Coverage](https://codecov.io/gh/sizovs/pipelinr/branch/master/graph/badge.svg)](https://codecov.io/github/sizovs/pipelinr?branch=master)
 [![codebeat badge](https://codebeat.co/badges/9f494efc-3c85-45ca-b1a2-52e4f1879f02)](https://codebeat.co/projects/github-com-sizovs-pipelinr-master)
