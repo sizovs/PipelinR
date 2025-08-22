@@ -3,13 +3,15 @@ package an.awesome.pipelinr;
 import static an.awesome.pipelinr.Preconditions.checkArgument;
 import static java.util.stream.Collectors.toList;
 
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class Pipelinr implements Pipeline {
 
-  private Command.Router router = new ToFirstMatching();
+  private Command.Router router = new ToFirstMatchingCaching();
 
   private StreamSupplier<Command.Middleware> commandMiddlewares = Stream::empty;
   private StreamSupplier<Command.Handler> commandHandlers = Stream::empty;
@@ -112,25 +114,48 @@ public class Pipelinr implements Pipeline {
     }
   }
 
-  public class ToFirstMatching implements Command.Router {
+    public class ToFirstMatchingCaching implements Command.Router {
+        private final ConcurrentHashMap<Class<?>, Command.Handler<?, ?>> cache = new ConcurrentHashMap<>();
+        @SuppressWarnings("unchecked")
+        @Override
+        public <C extends Command<R>, R> Command.Handler<C, R> route(C command) {
+            Command.Handler<?, ?> cached = cache.get(command.getClass());
+            if (cached != null) {
+                return (Command.Handler<C, R>) cached;
+            }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <C extends Command<R>, R> Command.Handler<C, R> route(C command) {
-      List<Command.Handler> matchingHandlers =
-          commandHandlers.supply().filter(handler -> handler.matches(command)).collect(toList());
+            List<Command.Handler> matches = commandHandlers.supply()
+                    .filter(handler -> {
+                        Class<?> targetClass = handler.getClass();
 
-      boolean noMatches = matchingHandlers.isEmpty();
-      if (noMatches) {
-        throw new CommandHandlerNotFoundException(command);
-      }
+                        // Detect if handler is using default implementation of matches()
+                        boolean usesDefault = false;
+                        for (Method method : targetClass.getMethods()) {
+                            try {
+                                if (method.equals(Command.Handler.class.getMethod("matches", Command.class))) {
+                                    usesDefault = true;
+                                    break;
+                                }
+                            } catch (NoSuchMethodException ignored) {
+                            }
+                        }
 
-      boolean moreThanOneMatch = matchingHandlers.size() > 1;
-      if (moreThanOneMatch) {
-        throw new CommandHasMultipleHandlersException(command, matchingHandlers);
-      }
+                        boolean matched = handler.matches(command);
+                        if (matched && usesDefault) {
+                            cache.putIfAbsent(command.getClass(), handler);
+                        }
+                        return matched;
+                    })
+                    .collect(toList());
 
-      return matchingHandlers.get(0);
+            if (matches.isEmpty()) {
+                throw new CommandHandlerNotFoundException(command);
+            }
+            if (matches.size() > 1) {
+                throw new CommandHasMultipleHandlersException(command, matches);
+            }
+
+            return (Command.Handler<C, R>) matches.get(0);
+        }
     }
-  }
 }
