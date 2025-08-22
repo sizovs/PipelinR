@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 public class Pipelinr implements Pipeline {
 
-  private final Command.Router router = new ToFirstMatching();
+  private Command.Router router = new ToFirstMatching();
 
   private StreamSupplier<Command.Middleware> commandMiddlewares = Stream::empty;
   private StreamSupplier<Command.Handler> commandHandlers = Stream::empty;
@@ -19,6 +19,12 @@ public class Pipelinr implements Pipeline {
       StopOnException::new;
 
   public Pipelinr() {}
+
+    public Pipelinr with(Command.Router router) {
+      checkArgument(router, "Router must not be null");
+      this.router = router;
+      return this;
+    }
 
   public Pipelinr with(CommandHandlers commandHandlers) {
     checkArgument(commandHandlers, "Command handlers must not be null");
@@ -106,7 +112,7 @@ public class Pipelinr implements Pipeline {
     }
   }
 
-  private class ToFirstMatching implements Command.Router {
+  public class ToFirstMatching implements Command.Router {
 
     @Override
     @SuppressWarnings("unchecked")
