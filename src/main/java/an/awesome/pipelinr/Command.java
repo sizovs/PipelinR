@@ -14,9 +14,8 @@ public interface Command<R> {
     R handle(C command);
 
     default boolean matches(C command) {
-      TypeToken<C> commandTypeOfAHandler = new TypeToken<C>(getClass()) {};
-      return commandTypeOfAHandler.getRawType().equals(command.getClass())
-          || commandTypeOfAHandler.isSupertypeOf(command.getClass());
+      TypeToken<C> commandType = new TypeToken<C>(getClass()) {};
+      return commandType.getRawType().isAssignableFrom(command.getClass());
     }
   }
 

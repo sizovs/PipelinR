@@ -13,9 +13,9 @@ public interface Notification {
     void handle(N notification);
 
     default boolean matches(N notification) {
-      TypeToken<N> notificationTypeOfAHandler = new TypeToken<N>(getClass()) {};
-      return notificationTypeOfAHandler.getRawType().equals(notification.getClass())
-          || notificationTypeOfAHandler.isSupertypeOf(notification.getClass());
+      TypeToken<N> notificationType = new TypeToken<N>(getClass()) {};
+      return notificationType.getRawType().isAssignableFrom(notification.getClass());
+
     }
   }
 
