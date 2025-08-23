@@ -28,6 +28,39 @@ class PipelinrTest {
     assertThat(handlerThatExtendsAbstractClass.receivedPings).containsOnly(new Ping("hi"));
   }
 
+  interface GenericInterfaceFoo<A> {
+  }
+
+  interface GenericInterfaceBar<B> {
+  }
+
+  @Test
+  void supportsHandlersThatImplementGenericInterfaces() {
+    class SubjectHandler implements GenericInterfaceBar<Integer>, Command.Handler<Ping, Voidy>, GenericInterfaceFoo<Integer> {
+
+      final Collection<Ping> pings = new ArrayList<>();
+
+      @Override
+      public Voidy handle(Ping command) {
+        this.pings.add(command);
+        return new Voidy();
+      }
+    }
+
+    // given
+    SubjectHandler handler = new SubjectHandler();
+
+    // and
+    Pipelinr pipelinr = new Pipelinr().with(() -> Stream.of(handler));
+
+    // when
+    pipelinr.send(new Ping("hi"));
+
+    // then:
+    assertThat(handler.pings).containsOnly(new Ping("hi"));
+
+  }
+
   @Test
   void executesCommandMiddlewaresInOrder() {
     // given
