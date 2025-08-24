@@ -26,7 +26,7 @@ PipelinR has been battle-proven on production as a service layer for some cool F
 
 ## How to use
 
-PipelinR has no dependencies. All you need is a single library:
+PipelinR has no dependencies and weights only ~30kb. All you need is a single library:
 
 Maven:
 
@@ -34,7 +34,7 @@ Maven:
 <dependency>
   <groupId>net.sizovs</groupId>
   <artifactId>pipelinr</artifactId>
-  <version>0.9</version>
+  <version>0.10</version>
 </dependency>
 ```
 
@@ -42,7 +42,7 @@ Gradle:
 
 ```groovy
 dependencies {
-    compile 'net.sizovs:pipelinr:0.9'
+    compile 'net.sizovs:pipelinr:0.10'
 }
 ```
 
