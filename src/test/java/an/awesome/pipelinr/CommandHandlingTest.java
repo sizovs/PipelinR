@@ -11,71 +11,67 @@ class CommandHandlingTest {
 
   @Test
   void supportsCommandsWithGenerics() {
-    class CommandWithGenerics<G> implements Command<G> {}
-
-    class HandlerForCommandWithGenerics
-        implements Command.Handler<CommandWithGenerics<String>, String> {
+    class Cmd<G> implements Command<G> {}
+    class Handler implements Command.Handler<Cmd<String>, String> {
       @SuppressWarnings({"rawtypes"})
       @Override
-      public String handle(CommandWithGenerics command) {
+      public String handle(Cmd command) {
         return "HANDLED";
       }
     }
 
-    Pipeline pipeline = new Pipelinr().with(() -> Stream.of(new HandlerForCommandWithGenerics()));
+    Pipeline pipeline = new Pipelinr().with(() -> Stream.of(new Handler()));
 
-    String results = pipeline.send(new CommandWithGenerics<>());
+    String results = pipeline.send(new Cmd<>());
     assertThat(results).isEqualTo("HANDLED");
   }
 
   @Test
   void handlesCommandsThatAreSubtypesOfAGenericArgument() {
     // given
-    Ping.Handler pingHandler = new Ping.Handler();
-    NotAPing.Handler notAPingHandler = new NotAPing.Handler();
-    Pipeline pipeline = new Pipelinr().with(() -> Stream.of(pingHandler, notAPingHandler));
+    PingHandler pingHandler = new PingHandler();
+    SomethingElseHandler somethingElseHandler = new SomethingElseHandler();
+    Pipeline pipeline = new Pipelinr().with(() -> Stream.of(pingHandler, somethingElseHandler));
 
     // and
     Ping ping = new Ping();
-    SmartPing smartPing = new SmartPing();
-    NotAPing notAPing = new NotAPing();
+    PingOnSteroids pingOnSteroids = new PingOnSteroids();
+
+    SomethingElse somethingElse = new SomethingElse();
 
     // when
     pipeline.send(ping);
-    pipeline.send(smartPing);
-    pipeline.send(notAPing);
+    pipeline.send(pingOnSteroids);
+    pipeline.send(somethingElse);
 
     // then
-    assertThat(pingHandler.handled).containsOnly(ping, smartPing);
-    assertThat(notAPingHandler.handled).containsOnly(notAPing);
+    assertThat(pingHandler.commands).containsOnly(ping, pingOnSteroids);
+    assertThat(somethingElseHandler.commands).containsOnly(somethingElse);
   }
 
-  static class Ping implements Command<Voidy> {
+  static class Ping implements Command<Voidy> {}
 
-    static class Handler implements Command.Handler<Ping, Voidy> {
+  static class PingOnSteroids extends Ping {}
 
-      private Collection<Command> handled = new ArrayList<>();
+  static class PingHandler implements Command.Handler<Ping, Voidy> {
+    private final Collection<Ping> commands = new ArrayList<>();
 
-      @Override
-      public Voidy handle(Ping command) {
-        handled.add(command);
-        return new Voidy();
-      }
+    @Override
+    public Voidy handle(Ping command) {
+      commands.add(command);
+      return new Voidy();
     }
   }
 
-  static class SmartPing extends Ping {}
+  static class SomethingElse implements Command<Voidy> {}
 
-  static class NotAPing implements Command<Voidy> {
-    static class Handler implements Command.Handler<NotAPing, Voidy> {
+  static class SomethingElseHandler implements Command.Handler<SomethingElse, Voidy> {
+    private final Collection<SomethingElse> commands = new ArrayList<>();
 
-      private Collection<Command> handled = new ArrayList<>();
-
-      @Override
-      public Voidy handle(NotAPing command) {
-        handled.add(command);
-        return new Voidy();
-      }
+    @Override
+    public Voidy handle(SomethingElse command) {
+      commands.add(command);
+      return new Voidy();
     }
   }
 }

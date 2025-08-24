@@ -13,19 +13,30 @@ import org.junit.jupiter.api.Test;
 class PipelinrTest {
 
   @Test
-  void supportsAbstractCommandHandlers() {
+  void supportsAbstractHandlers() {
+    abstract class AbstractHandler<C extends Command<R>, R> implements Command.Handler<C, R> {}
+
+    class SubjectHandler extends AbstractHandler<Ping, Voidy> {
+      final Collection<Ping> pings = new ArrayList<>();
+
+      @Override
+      public Voidy handle(Ping command) {
+        this.pings.add(command);
+        return new Voidy();
+      }
+    }
+
     // given
-    HandlerThatExtendsAbstractClass handlerThatExtendsAbstractClass =
-        new HandlerThatExtendsAbstractClass();
+    SubjectHandler subjectHandler = new SubjectHandler();
 
     // and
-    Pipelinr pipelinr = new Pipelinr().with(() -> Stream.of(handlerThatExtendsAbstractClass));
+    Pipelinr pipelinr = new Pipelinr().with(() -> Stream.of(subjectHandler));
 
     // when
     pipelinr.send(new Ping("hi"));
 
     // then:
-    assertThat(handlerThatExtendsAbstractClass.receivedPings).containsOnly(new Ping("hi"));
+    assertThat(subjectHandler.pings).containsOnly(new Ping("hi"));
   }
 
   interface GenericInterfaceFoo<A> {}
@@ -104,21 +115,21 @@ class PipelinrTest {
   @Test
   void supportsCustomHandlerMatching() {
     // given
-    Hi hi = new Hi();
-    PingSaver pingSaver = new PingSaver();
+    Bye bye = new Bye();
+    Goodnight goodnight = new Goodnight();
 
     // and
-    Pipelinr pipelinr = new Pipelinr().with(() -> Stream.of(hi, pingSaver));
+    Pipelinr pipelinr = new Pipelinr().with(() -> Stream.of(goodnight, bye));
 
     // when
-    pipelinr.send(new Ping("hi"));
+    pipelinr.send(new Ping("goodnight"));
 
     // and
     pipelinr.send(new Ping("bye"));
 
     // then:
-    assertThat(hi.receivedPings).containsOnly(new Ping("hi"));
-    assertThat(pingSaver.receivedPings).containsOnly(new Ping("bye"));
+    assertThat(goodnight.pings).containsOnly(new Ping("goodnight"));
+    assertThat(bye.pings).containsOnly(new Ping("bye"));
   }
 
   @Test
@@ -169,21 +180,21 @@ class PipelinrTest {
     }
 
     @Override
-    public boolean equals(Object obj) {
-      if (obj instanceof Ping) {
-        Ping other = (Ping) obj;
-        return other.message.equals(this.message);
+    public boolean equals(Object other) {
+      if (other instanceof Ping) {
+        Ping that = (Ping) other;
+        return that.message.equals(this.message);
       }
       return false;
     }
 
-    static class PingSaver implements Handler<Ping, Voidy> {
+    static class Bye implements Handler<Ping, Voidy> {
 
-      Collection<Ping> receivedPings = new ArrayList<>();
+      Collection<Ping> pings = new ArrayList<>();
 
       @Override
       public Voidy handle(Ping command) {
-        this.receivedPings.add(command);
+        this.pings.add(command);
         return new Voidy();
       }
 
@@ -193,19 +204,19 @@ class PipelinrTest {
       }
     }
 
-    static class Hi implements Handler<Ping, Voidy> {
+    static class Goodnight implements Handler<Ping, Voidy> {
 
-      Collection<Ping> receivedPings = new ArrayList<>();
+      Collection<Ping> pings = new ArrayList<>();
 
       @Override
       public Voidy handle(Ping command) {
-        this.receivedPings.add(command);
+        this.pings.add(command);
         return new Voidy();
       }
 
       @Override
       public boolean matches(Ping command) {
-        return command.message.equals("hi");
+        return command.message.equals("goodnight");
       }
     }
 
@@ -224,18 +235,5 @@ class PipelinrTest {
         return new Voidy();
       }
     }
-
-    static class HandlerThatExtendsAbstractClass extends AbstractHandler<Ping, Voidy> {
-
-      Collection<Ping> receivedPings = new ArrayList<>();
-
-      @Override
-      public Voidy handle(Ping command) {
-        this.receivedPings.add(command);
-        return new Voidy();
-      }
-    }
-
-    abstract static class AbstractHandler<C extends Command<R>, R> implements Handler<C, R> {}
   }
 }

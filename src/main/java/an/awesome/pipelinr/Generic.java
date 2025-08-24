@@ -130,7 +130,7 @@ public abstract class Generic<C> {
         // Recursively resolve in case replacement itself is another type variable.
         if (replacement != null) return get(replacement);
       } else if (type instanceof ParameterizedType) {
-        // Example: CommandWithGenerics<G> → CommandWithGenerics<String>
+        // Example: List<String> → List.class
         return ((ParameterizedType) type).getRawType();
       }
 
