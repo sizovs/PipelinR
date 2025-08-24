@@ -126,10 +126,10 @@ interface CommandValidator<C extends Command<R>, R> {
     void validate(C command);
 
     default boolean matches(C command) {
-        TypeToken<C> commandType = new TypeToken<C>(getClass()) { // available in Guava 12+.
+        Generic<C> commandType = new Generic<C>(getClass()) { // since 0.10
         };
 
-        return commandType.getRawType().isAssignableFrom(command.getClass());
+        return commandType.resolve().isAssignableFrom(command.getClass());
     }
 }
 

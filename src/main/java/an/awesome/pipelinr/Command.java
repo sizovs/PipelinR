@@ -1,6 +1,5 @@
 package an.awesome.pipelinr;
 
-import com.google.common.reflect.TypeToken;
 import java.util.stream.Stream;
 
 public interface Command<R> {
@@ -14,8 +13,8 @@ public interface Command<R> {
     R handle(C command);
 
     default boolean matches(C command) {
-      TypeToken<C> commandType = new TypeToken<C>(getClass()) {};
-      return commandType.getRawType().isAssignableFrom(command.getClass());
+      Generic<C> commandType = new Generic<C>(getClass()) {};
+      return commandType.resolve().isAssignableFrom(command.getClass());
     }
   }
 

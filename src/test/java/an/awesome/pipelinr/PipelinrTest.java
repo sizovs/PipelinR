@@ -28,15 +28,16 @@ class PipelinrTest {
     assertThat(handlerThatExtendsAbstractClass.receivedPings).containsOnly(new Ping("hi"));
   }
 
-  interface GenericInterfaceFoo<A> {
-  }
+  interface GenericInterfaceFoo<A> {}
 
-  interface GenericInterfaceBar<B> {
-  }
+  interface GenericInterfaceBar<B> {}
 
   @Test
   void supportsHandlersThatImplementGenericInterfaces() {
-    class SubjectHandler implements GenericInterfaceBar<Integer>, Command.Handler<Ping, Voidy>, GenericInterfaceFoo<Integer> {
+    class SubjectHandler
+        implements GenericInterfaceBar<Integer>,
+            Command.Handler<Ping, Voidy>,
+            GenericInterfaceFoo<Integer> {
 
       final Collection<Ping> pings = new ArrayList<>();
 
@@ -58,7 +59,6 @@ class PipelinrTest {
 
     // then:
     assertThat(handler.pings).containsOnly(new Ping("hi"));
-
   }
 
   @Test

@@ -140,7 +140,6 @@ java {
 }
 
 dependencies {
-    implementation("com.google.guava:guava:33.3.1-jre")
     testImplementation("org.junit.jupiter:junit-jupiter:5.4.0")
     testImplementation("org.junit.platform:junit-platform-runner:1.4.0")
     testImplementation("org.assertj:assertj-core:3.11.1")
