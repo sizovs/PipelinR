@@ -1,7 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
-
 buildscript {
     repositories {
         mavenLocal()
@@ -13,12 +9,11 @@ group = "net.sizovs"
 version = project.findProperty("version") ?: "UNSPECIFIED"
 
 plugins {
-    java
+    `java-library`
     jacoco
-    signing
     id("com.diffplug.spotless") version "6.12.0"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("maven-publish")
+    id("io.github.sgtsilvio.gradle.maven-central-publishing") version "0.4.1"
+    id("io.github.sgtsilvio.gradle.metadata") version "0.6.0"
 }
 
 spotless {
@@ -27,26 +22,12 @@ spotless {
     }
 }
 
-tasks.register<ShadowJar>("sourcesJar") {
-    archiveClassifier.set("sources")
-    from(sourceSets.main.get().allJava)
-}
-
-tasks.register<ShadowJar>("javadocJar") {
-    dependsOn("javadoc")
-    archiveClassifier.set("javadoc")
-    from(tasks.javadoc.get().destinationDir)
-}
-
 val projectUrl = "https://github.com/sizovs/pipelinr"
+
 publishing {
     publications {
-        create<MavenPublication>("mavenJava") {
-            project.extensions.configure<ShadowExtension>() {
-                component(this@create)
-            }
-            artifact(tasks["sourcesJar"])
-            artifact(tasks["javadocJar"])
+        register<MavenPublication>("main") {
+            from(components["java"])
             pom {
                 name.set("PipelinR")
                 description.set("A lightweight command processing pipeline ❍ ⇢ ❍ ⇢ ❍ for your Java awesome app.")
@@ -73,46 +54,16 @@ publishing {
             }
         }
     }
-    repositories {
-        maven {
-            name = "Nexus"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                val nexusUser: String? by project
-                val nexusPassword: String? by project
-                username = nexusUser
-                password = nexusPassword
-            }
-        }
-    }
 }
 
 signing {
     val signingKey: String? by project
     val signingPassword: String? by project
     useInMemoryPgpKeys(signingKey, signingPassword)
-    sign(publishing.publications["mavenJava"])
-}
-
-tasks.create<ConfigureShadowRelocation>("relocateShadowJar") {
-    target = tasks["shadowJar"] as ShadowJar
-    prefix = "an.awesome.pipelinr.repack"
+    sign(publishing.publications["main"])
 }
 
 tasks {
-    named<Jar>("jar") {
-        enabled = false
-    }
-
-    withType<GenerateModuleMetadata> {
-        enabled = false
-    }
-
-    named<ShadowJar>("shadowJar") {
-        dependsOn("relocateShadowJar")
-        archiveClassifier.set("")
-    }
-
     named<JacocoReport>("jacocoTestReport") {
         reports {
             xml.required.set(true)
@@ -133,8 +84,9 @@ repositories {
     mavenCentral()
 }
 
-
 java {
+    withJavadocJar()
+    withSourcesJar()
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }

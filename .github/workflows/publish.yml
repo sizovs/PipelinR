@@ -15,9 +15,9 @@ jobs:
         with:
           java-version: 1.8
       - name: Publish to Maven Central
-        run: ./gradlew --info --no-daemon --stacktrace --console=plain shadowJar publish -Pversion=${{ github.event.inputs.version }}
+        run: ./gradlew --info --no-daemon --stacktrace --console=plain publishToMavenCentral -Pversion=${{ github.event.inputs.version }}
         env:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PWD }}
-          ORG_GRADLE_PROJECT_nexusUser: ${{ secrets.NEXUS_USER }}
-          ORG_GRADLE_PROJECT_nexusPassword: ${{ secrets.NEXUS_PWD }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MVN_USER }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MVN_PWD }}
