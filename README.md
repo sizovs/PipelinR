@@ -34,7 +34,7 @@ Maven:
 <dependency>
   <groupId>net.sizovs</groupId>
   <artifactId>pipelinr</artifactId>
-  <version>0.10</version>
+  <version>0.11</version>
 </dependency>
 ```
 
@@ -42,7 +42,7 @@ Gradle:
 
 ```groovy
 dependencies {
-    compile 'net.sizovs:pipelinr:0.10'
+    compile 'net.sizovs:pipelinr:0.11'
 }
 ```
 
