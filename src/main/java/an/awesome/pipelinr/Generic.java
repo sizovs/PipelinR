@@ -6,7 +6,6 @@ import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Resolves generic types (like &lt;C&gt; or List&lt;R&gt;) into concrete runtime types in the
@@ -25,13 +24,10 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public abstract class Generic<C> {
 
-  private static final Map<Generic<?>, Type> RESOLVED_GENERICS = new ConcurrentHashMap<>();
+  private static Map<Generic<?>, Type> RESOLVED_GENERICS = new ConcurrentHashMap<>();
 
   private final Class<?> context;
   private final Type diamond;
-
-  // For testing
-  final AtomicLong numberOfScans = new AtomicLong();
 
   protected Generic(Class<?> context) {
     this.context = context;
@@ -53,7 +49,6 @@ public abstract class Generic<C> {
             this,
             it -> {
               Mappings mappings = new Scanner().scan(context);
-              numberOfScans.incrementAndGet();
               return mappings.get(diamond);
             });
   }
@@ -69,6 +64,11 @@ public abstract class Generic<C> {
   @Override
   public int hashCode() {
     return 31 * context.hashCode() + diamond.hashCode();
+  }
+
+  // for testing
+  static void setCache(ConcurrentHashMap<Generic<?>, Type> cache) {
+    Generic.RESOLVED_GENERICS = cache;
   }
 
   /** Walks the class hierarchy, collecting mappings between type variables and actual types. */
