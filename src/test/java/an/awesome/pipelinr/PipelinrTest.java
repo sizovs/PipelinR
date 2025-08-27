@@ -149,24 +149,6 @@ class PipelinrTest {
     assertThat(e).hasMessage("Cannot find a matching handler for Ping command");
   }
 
-  @Test
-  void throwsIfSentCommandHasMultipleHandlers() {
-    // given
-    Pipelinr pipelinr = new Pipelinr().with(() -> Stream.of(new Pong1(), new Pong2()));
-
-    // when
-    Throwable e =
-        assertThrows(
-            CommandHasMultipleHandlersException.class,
-            () -> {
-              pipelinr.send(new Ping());
-            });
-
-    // then
-    assertThat(e)
-        .hasMessage("Command Ping must have a single matching handler, but found 2 (Pong1, Pong2)");
-  }
-
   static class Ping implements Command<Voidy> {
 
     private final String message;

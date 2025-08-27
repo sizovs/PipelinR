@@ -117,20 +117,11 @@ public class Pipelinr implements Pipeline {
     @Override
     @SuppressWarnings("unchecked")
     public <C extends Command<R>, R> Command.Handler<C, R> route(C command) {
-      List<Command.Handler> matchingHandlers =
-          commandHandlers.supply().filter(handler -> handler.matches(command)).collect(toList());
-
-      boolean noHandlers = matchingHandlers.isEmpty();
-      if (noHandlers) {
-        throw new CommandHandlerNotFoundException(command);
-      }
-
-      boolean multipleHandlers = matchingHandlers.size() > 1;
-      if (multipleHandlers) {
-        throw new CommandHasMultipleHandlersException(command, matchingHandlers);
-      }
-
-      return matchingHandlers.get(0);
+      return commandHandlers
+          .supply()
+          .filter(handler -> handler.matches(command))
+          .findFirst()
+          .orElseThrow(() -> new CommandHandlerNotFoundException(command));
     }
   }
 }
