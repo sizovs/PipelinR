@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 public class Pipelinr implements Pipeline {
 
-  private final Command.Router router = new ToFirstMatching();
+  private Command.Router router = new ToFirstMatching();
 
   private StreamSupplier<Command.Middleware> commandMiddlewares = Stream::empty;
   private StreamSupplier<Command.Handler> commandHandlers = Stream::empty;
@@ -50,6 +50,12 @@ public class Pipelinr implements Pipeline {
         notificationHandlingStrategySupplier,
         "Notification handling strategy supplier must not be null");
     this.notificationHandlingStrategySupplier = notificationHandlingStrategySupplier;
+    return this;
+  }
+
+  public Pipelinr with(Command.Router router) {
+    checkArgument(router, "Router must not be null");
+    this.router = router;
     return this;
   }
 
@@ -114,13 +120,13 @@ public class Pipelinr implements Pipeline {
       List<Command.Handler> matchingHandlers =
           commandHandlers.supply().filter(handler -> handler.matches(command)).collect(toList());
 
-      boolean noMatches = matchingHandlers.isEmpty();
-      if (noMatches) {
+      boolean noHandlers = matchingHandlers.isEmpty();
+      if (noHandlers) {
         throw new CommandHandlerNotFoundException(command);
       }
 
-      boolean moreThanOneMatch = matchingHandlers.size() > 1;
-      if (moreThanOneMatch) {
+      boolean multipleHandlers = matchingHandlers.size() > 1;
+      if (multipleHandlers) {
         throw new CommandHasMultipleHandlersException(command, matchingHandlers);
       }
 
